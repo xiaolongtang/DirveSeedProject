@@ -1,0 +1,98 @@
+
+<!--
+    Relative paths assume component is being run from inside an app or another component, where dependencies are flat
+    siblings. When this component is run from its own repo (e.g. ui tests, examples), we assume the server is started with
+    'grunt depserve' (or similar server setup) to enable correct finding of bower dependencies for local runs
+    See https://github.sw.ge.com/jreichenberg/grunt-dep-serve#why-do-we-need-this
+-->
+<link rel="import" href="../polymer/polymer.html"/>
+
+
+<!--
+Element providing a visual digital meter with 20 bars.  Can represent a percentage.
+
+##### Usage
+
+    <ref-digital-meter percentage="78.3"></ref-digital-meter>
+
+@element ref-digital-meter
+@blurb Element providing a visual digital meter with 20 bars.  Can represent a percentage.
+@homepage index.html
+@demo demo.html
+-->
+<dom-module id="ref-digital-meter">
+    <link rel="import" type="css" href="css/ref-digital-meter.css"/>
+    <template>
+        <div class="digital-meter">
+            <template is="dom-repeat" items="{{bars}}">
+                <div class="bar-empty">
+                    <div class$="{{computeBarClass(item)}}" style$="{{computeBarHeight(item)}}"></div>
+                </div>
+            </template>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+
+        is: 'ref-digital-meter',
+
+        ready: function() {
+            // console.log('ready');
+            this.set('bars', [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95]);
+        },
+
+        computeBarClass: function(bar) {
+            // console.log('computeBarClass ' + this.percentage);
+            var fillColor = 'bar-fill';
+            if (this.percentage < 40) {
+                fillColor += ' bar-red';
+            } else if (this.percentage < 80) {
+                fillColor += ' bar-yellow';
+            } else {
+                fillColor += ' bar-green';
+            }
+            return fillColor;
+        },
+
+        computeBarHeight: function(bar) {
+            // console.log('computeBarHeight');
+            var difference = this.percentage - bar;
+            if (difference < 0) {
+                return 'height: 0';
+            }
+            if (difference < 5) {
+                var height = (difference / 5) * 100;
+                return 'height: ' + height + '%';
+            }
+            return 'height: 100%';
+        },
+
+        percentageChanged: function(newValue, oldValue) {
+            console.log("percentageChanged: " + JSON.stringify(newValue));
+            var allBars = Polymer.dom(this.root).querySelectorAll('.bar-fill');
+            for (var i=0; i<allBars.length; i++) {
+                var domBar = allBars[i];
+                domBar.setAttribute('style', this.computeBarHeight(this.bars[i]));
+                domBar.setAttribute('class', this.computeBarClass(this.bars[i]) + ' style-scope ref-digital-meter');
+                // console.log('bar-fill class list: ' + JSON.stringify(domBar.classList));
+            }
+        },
+
+        /**
+         * Properties block, expose attribute values to the DOM via 'reflect'
+         *
+         * @property properties
+         * @type Object
+         */
+        properties: {
+            percentage: {
+                type: Number,
+                notify: true,
+                observer: 'percentageChanged'
+            }
+        }
+
+    });
+</script>

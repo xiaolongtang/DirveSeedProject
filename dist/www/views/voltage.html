@@ -1,0 +1,282 @@
+		<!--page css-->
+
+		        <style type="text/css">
+
+		            .box1{width:100%;float:left;}
+
+		            .gbox{height:160px;box-shadow:0 0px 5px #ccc;padding:15px;margin-bottom:30px;margin-left:30px;position:relative;background-color:#F2F2F2;}
+
+		            .box2{width:50%;float:left;}
+
+		            .gbox2{height:290px;box-shadow:0 0px 5px #ccc;padding:15px;margin-bottom:30px;margin-left:30px;position:relative;}
+
+		            .img1
+		            {
+		                position: absolute;
+		                left:15%;
+		                top:10%;
+		            }
+
+		            .img2
+		            {
+		                position: absolute;
+		                left: 35%;
+		                top:14%;
+		            }
+
+		            .img3
+		            {
+		                position: absolute;
+		                left: 53%;
+		                top:12%;
+		            }
+
+		            .img4
+		            {
+		                position: absolute;
+		                left: 73%;
+		                top: 11%;
+		            }
+
+		            .title1
+		            {
+		                position: absolute;
+		                left: 15%;
+		                top:35%;
+		                color: #4173b8;
+		            }
+
+		            .content1
+		            {
+		                position: absolute;
+		                left: 17%;
+		                top: 50%;
+		                color: #db524b;
+		            }
+
+		            .title2
+		            {
+		                position: absolute;
+		                left: 35%;
+		                top:35%;
+		                color: #4173b8;
+		            }
+
+		            .content2
+		            {
+		                position: absolute;
+		                left: 36%;
+		                top: 50%;
+		                color: #58b957;
+		            }
+
+		            .title3
+		            {
+		                position: absolute;
+		                left: 52%;
+		                top: 35%;
+		                color: #4173b8;
+		            }
+
+		            .content3
+		            {
+		                position: absolute;
+		                left: 54%;
+		                top: 50%;
+		                color: #f2ae43;
+		            }
+
+		            .title4
+		            {
+		                position: absolute;
+		                left: 71%;
+		                top: 35%;
+		                color: #4173b8;
+		            }
+
+		            .content4
+		            {
+		                position: absolute;
+		                left: 75%;
+		                top: 50%;
+		                color: #56c0e0;
+		            }
+
+		            .bl1
+		            {
+		                position: absolute;
+		                left: 13%;
+		                top: 70%;
+		            }
+		            .bl2
+		            {
+		                position: absolute;
+		                left: 33%;
+		                top: 70%;
+		            }
+		            .bl3
+		            {
+		                position: absolute;
+		                left: 52%;
+		                top: 70%;
+		            }
+		            .bl4
+		            {
+		                position: absolute;
+		                left: 72%;
+		                top: 70%;
+		            }
+		            .boxTitle
+		            {
+		                background-color:#F2F2F2;
+		                width: 100%;
+		                height: 20%;
+		                position: absolute;
+		                top:0%;
+		                left: 0px;
+		            }
+		            .boxTitle p{font-size: 20px;position: absolute;left: 12px;}
+		            .chart1
+		            {
+		            	float: left;
+		            	position: absolute;
+		            	top: 22%;
+		            }
+		            .chart2
+		            {
+		            	position: absolute;
+		            	top: 22%;
+		            	right: 6%;
+		            }
+		            .chartTitle1{position: absolute;bottom: 6%;left: 11%;color: #4173b8;}
+		            .chartTitle2{position: absolute;bottom: 6%;right: 13%;color: #4173b8;}
+		            .map{position: absolute;top: 24%; right: 3%;width: 73%;height: 69%;}
+	                .mapTitle{position: absolute;top: 32%; left: 3%;font-size: 24px;color: #4173b8;}
+	                .mapContent{position: absolute;top: 48%;left: 1%;font-size: 18px;color: #db524b; }
+	                .pieChart{position: absolute;top: 30%;right: 12%;}
+                    .pieTitle1{position: absolute;top: 30%;left: 18%;font-size: 25px;color: #4173b8;}
+                    .pieTitle2{position: absolute;top: 48%;left: 24%;font-size: 20px;color: #db524b;}
+		        </style>
+	<script>
+	 $(document).ready(function () {
+	    $(function() {
+	        $('.pieChart').easyPieChart({
+	           easing: 'easeOutElastic',
+				delay: 3000,
+				barColor: '#69c',
+				trackColor: '#ace',
+				scaleColor: false,
+				lineWidth: 40,
+                trackWidth: 32,
+                size: 200,
+				lineCap: 'butt'
+	        });
+	    });
+	});
+	</script>
+		<px-card icon="fa-suitcase" header-text="Status" chevron>
+		 <!--first part-->
+		        <div class="box1">
+
+		            <div class="gbox">
+
+		                <div class="top">
+
+		                    <img class="img1" src="images/1.png"/>
+		                    <img class="img2" src="images/2.png"/>
+		                    <img class="img3" src="images/3.png"/>
+		                    <img class="img4" src="images/4.png"/>
+		                </div>
+
+
+
+		                <div class="middle">
+		                    <p class="title1">Moter Type</p>
+		                    <p class="content1">{{type}}</p>
+
+		                    <p class="title2">Fan Status</p>
+		                    <p class="content2">{{fan}}</p>
+
+		                    <p class="title3">Continous Time</p>
+		                    <p class="content3">{{ctime}}hrs</p>
+
+		                    <p class="title4">Manufacture Date</p>
+		                    <p class="content4">{{mdate}}</p>
+		                </div>
+
+
+
+		                <div class="bottom">
+		                    <img class="bl1" src="images/6.png" />
+		                    <img class="bl2" src="images/6.png" />
+		                    <img class="bl3" src="images/6.png" />
+		                    <img class="bl4" src="images/6.png" />
+		                </div>
+
+
+
+		            </div>
+
+		        </div>
+
+		        <!--second part-->
+		        <div class="box2">
+
+		            <div class="gbox2">
+		                <div class="boxTitle">
+		                    <p>Voltage</p>
+		                </div>
+		                <!--chart-->
+		                <div class="chart1" width="220" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+
+		                <div class="chart2" width="220" ng-radial-gauge ranges="ranges" value="value4" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+
+		                <p class="chartTitle1">Vol_In Value:{{voltagestatus.value}}V</p>
+		                <p class="chartTitle2">Vol_Out Value:{{value4}}V</p>
+		            </div>
+		        </div>
+
+		        <div class="box2">
+
+		            <div class="gbox2">
+		                <div class="boxTitle">
+		                    <p>Current</p>
+		                </div>
+		                 <!--chart-->
+		                <div class="chart1" width="220" ng-radial-gauge ranges="ranges2" value="value5" value-unit="unit2" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit2" class="speed_svg"></div>
+
+		                <div class="chart2" width="220" ng-radial-gauge ranges="ranges2" value="value6" value-unit="unit2" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit2" class="speed_svg"></div>
+
+		                <p class="chartTitle1">Cur_In Value:{{value5}}A</p>
+		                <p class="chartTitle2">Cur_Out Value:{{value6}}A</p>
+		            </div>
+		        </div>
+
+		        <!--last part-->
+		        <div class="box2">
+
+		            <div class="gbox2">
+		                <div class="boxTitle">
+		                    <p>Rated Power</p>
+		                </div>
+	            <!--pie chart-->
+	            <p class="pieTitle1"> Rated Power </p>
+                <p class="pieTitle2">{{rpower}}MW</p>
+                <div class="pieChart" data-percent="60" ></div>
+
+		            </div>
+		        </div>
+
+		        <div class="box2">
+
+		            <div class="gbox2">
+		                <div class="boxTitle">
+		                    <p>Asset Location</p>
+		                </div>
+		                <!--map-->
+		                <img class="map" src="images/8.png" />
+		                <p class="mapTitle">Location</p>
+	                    <p class="mapContent">Shanghai China</p>
+		            </div>
+		        </div>
+		</px-card>

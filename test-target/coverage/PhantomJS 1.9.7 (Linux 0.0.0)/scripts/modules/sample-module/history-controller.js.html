@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for scripts/modules/sample-module/history-controller.js</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../../prettify.css">
+    <link rel="stylesheet" href="../../../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header low">
+    <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/history-controller.js</span></h1>
+    <h2>
+        Statements: <span class="metric">5.26% <small>(2 / 38)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">0% <small>(0 / 10)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">14.29% <small>(1 / 7)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">5.26% <small>(2 / 38)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; history-controller.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">		define(['angular', './sample-module'], function(angular, sampleModule) {
+		    'use strict';
+		    return sampleModule.controller('HistoryCtrl', ['$scope','$http', <span class="fstat-no" title="function not covered" >function($scope,$http,$stateParams) {</span>
+               
+<span class="cstat-no" title="statement not covered" >                var callMethod=<span class="fstat-no" title="function not covered" >function( i){</span></span>
+<span class="cstat-no" title="statement not covered" >                     $http.get('/api/ms/VoltageHistory?number='+i).success(<span class="fstat-no" title="function not covered" >function(data){</span></span>
+<span class="cstat-no" title="statement not covered" >						var barData = [];</span>
+		
+<span class="cstat-no" title="statement not covered" >			    		angular.forEach(data, <span class="fstat-no" title="function not covered" >function(obj,index,array){</span></span>
+<span class="cstat-no" title="statement not covered" >							var item = [];</span>
+<span class="cstat-no" title="statement not covered" >							item[0] = obj.time;</span>
+<span class="cstat-no" title="statement not covered" >							item[1] = parseInt(obj.value);</span>
+<span class="cstat-no" title="statement not covered" >							barData[index] = item;</span>
+							//console.log(barData[index]);
+						});
+<span class="cstat-no" title="statement not covered" >console.log(i);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >			    		switch(i)</span>
+			    		{
+			    	       case 1:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data1 = barData;</span>
+		                      // console.log("data1:");
+		                      // console.log($scope.data1);
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 2:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data2 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 3:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data3 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 4:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data4 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 5:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data5 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 6:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data6 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 7:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data7 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 8:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data8 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    case 9:
+<span class="cstat-no" title="statement not covered" >		                      $scope.data9 = barData;</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+		                    default:
+<span class="cstat-no" title="statement not covered" >		                    console.log("default");</span>
+<span class="cstat-no" title="statement not covered" >		                    break;</span>
+			    		}
+			    		//$scope.data = barData;
+			    		// console.log($scope.data);
+			         });
+                };
+&nbsp;
+                
+<span class="cstat-no" title="statement not covered" >		    	var updateStatus = <span class="fstat-no" title="function not covered" >function(){</span></span>
+		    		//3
+			   //  	$http.get('/api/ms/VoltageHistory?number=3').success(function(data){
+			   //  		// console.log('data = ' + JSON.stringify(data));
+						// var barData = [];
+						// // var dataStr='[{\"time\": 1467243572644,\"value\": \"6600\"}]';
+						// // var data=JSON.parse(dataStr);
+			   //  		angular.forEach(data, function(obj,index,array){
+						// 	var item = [];
+						// 	item[0] = obj.time;
+						// 	item[1] = parseInt(obj.value);
+						// 	barData[index] = item;
+						// 	//console.log(barData[index]);
+						// });
+			    		
+			   //  		$scope.data = barData;
+			   //  		// console.log($scope.data);
+			   //       });
+&nbsp;
+<span class="cstat-no" title="statement not covered" >			    	for(var i=1;i&lt;10;i++){</span>
+			    		
+<span class="cstat-no" title="statement not covered" >			    		callMethod(i);</span>
+			    	}
+&nbsp;
+		    	};
+&nbsp;
+<span class="cstat-no" title="statement not covered" >		    	setInterval(<span class="fstat-no" title="function not covered" >function(){</span></span>
+<span class="cstat-no" title="statement not covered" >		            $scope.$apply(updateStatus);</span>
+		        },360000);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >		        updateStatus();</span>
+&nbsp;
+		    }]);
+		});</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jul 18 2016 00:48:10 GMT-0700 (PDT)</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

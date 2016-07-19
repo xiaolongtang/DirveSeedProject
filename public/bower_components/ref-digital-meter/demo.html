@@ -1,0 +1,41 @@
+<!doctype html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ref-digital-meter Demo</title>
+        <!-- Requires Webcomponents.js polyfill is provided by the page for browsers that don't support html imports -->
+        <script src="../webcomponentsjs/webcomponents-lite.min.js"></script>
+        <!-- Import custom element. Note: see comment about relative paths to dependencies in the *.html file referenced below -->
+        <link rel="import" href="ref-digital-meter.html"/>
+    </head>
+
+    <body>
+
+        <h3>Demo</h3>
+
+        <p>
+            Although related, examples are /not/ the same as the test fixtures.
+            Tests are tests, examples are examples.
+        </p>
+
+        <p>
+            Also see the <a href="index.html">documentation</a> and the <a href="test/fixture.html">UI test fixture</a>.
+        </p>
+
+        <p>Minimum width is 160px.  Height can be adjusted to any size.</p>
+
+        <div style="width: 160px; height: 80px; padding: 10px; background-color: grey;">
+            <ref-digital-meter id="firstMeter" percentage="22.3"></ref-digital-meter>
+        </div>
+
+        <script type="text/javascript">
+            setTimeout(function() {
+                var firstMeter = Polymer.dom(document).querySelector('#firstMeter');
+                firstMeter.percentage = 82.3;
+            }, 1000);
+
+        </script>
+    </body>
+</html>

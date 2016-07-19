@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for scripts/modules/sample-module/lathestatus-controller.js</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../../prettify.css">
+    <link rel="stylesheet" href="../../../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header low">
+    <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/lathestatus-controller.js</span></h1>
+    <h2>
+        Statements: <span class="metric">15.38% <small>(2 / 13)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">100% <small>(0 / 0)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">20% <small>(1 / 5)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">15.38% <small>(2 / 13)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; lathestatus-controller.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">define(['angular', './sample-module'], function(angular, sampleModule) {
+    'use strict';
+    return sampleModule.controller('LatheStatusCtrl', ['$scope','$http','$state', <span class="fstat-no" title="function not covered" >function($scope,$http,$state) {</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        $scope.decks='Decks';</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        $scope.clock={</span>
+            now:'IN CYCLE'
+        };
+        
+<span class="cstat-no" title="statement not covered" >        var updateClock = <span class="fstat-no" title="function not covered" >function(){</span></span>
+            //$scope.clock.now = new Date();
+            // $http.get('/api/ms/machines')
+            //     .success(function(response) {
+            //         $scope.lathes = response;
+            //     }).error(function(){
+            // });
+<span class="cstat-no" title="statement not covered" >        var jsonText='[{\"latheCode\":\"M09\",\"status\":1,\"partNumber\":\"A267180-3\",\"procedure\":\"OP110\"}]';</span>
+        // var jsonText='[{\"latheCode\":\"M09\",\"status\":1,\"partNumber\":\"A267180-3\",\"procedure\":\"OP110\"},{\"latheCode\":\"M09\",\"status\":2,\"partNumber\":\"A267180-3\",\"procedure\":\"OP110\"},{\"latheCode\":\"M09\",\"status\":3,\"partNumber\":\"A267180-3\",\"procedure\":\"OP110\"},{\"latheCode\":\"M09\",\"status\":3,\"partNumber\":\"A267180-3\",\"procedure\":\"OP110\"}]';
+        // var jsonText=[{"latheCode":"M01","status":1,"partNumber":"A897186-1","procedure":"op120"},{"latheCode":"M02","status":3,"partNumber":"A897186-1","procedure":"op222"},{"latheCode":"M03","status":1,"partNumber":"A897186-1","procedure":"op120"},{"latheCode":"M04","status":1,"partNumber":"A267180-3","procedure":"OP10"},{"latheCode":"M05","status":1,"partNumber":"A267180-3","procedure":"OP110"},{"latheCode":"M06","status":2,"partNumber":"A267180-3","procedure":"OP110"},{"latheCode":"M07","status":0,"partNumber":"A267180-1","procedure":"OP110"},{"latheCode":"M08","status":1,"partNumber":"A267180-1","procedure":"OP110"},{"latheCode":"M09","status":1,"partNumber":"A267180-3","procedure":"OP110"},{"latheCode":"M10","status":1,"partNumber":"A267180-1","procedure":"OP110"},{"latheCode":"M11","status":1,"partNumber":"A267180-1","procedure":"OP110"},{"latheCode":"M12","status":0,"partNumber":"A267180-1","procedure":"OP110"},{"latheCode":"M13","status":0,"partNumber":"A267180-1","procedure":"OP110"}];
+<span class="cstat-no" title="statement not covered" >        var jobject=JSON.parse(jsonText);</span>
+<span class="cstat-no" title="statement not covered" >        $scope.lathes =jobject;</span>
+        };
+<span class="cstat-no" title="statement not covered" >        setInterval(<span class="fstat-no" title="function not covered" >function(){</span></span>
+<span class="cstat-no" title="statement not covered" >            $scope.$apply(updateClock);</span>
+        },5000);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        updateClock();</span>
+&nbsp;
+        
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        $scope.showlathe = <span class="fstat-no" title="function not covered" >function($id){</span></span>
+            // console.log('lathe id = ' + $id);
+<span class="cstat-no" title="statement not covered" >            $state.go('voltage', {data: $id});</span>
+        };
+    }]);
+});</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jul 18 2016 00:48:10 GMT-0700 (PDT)</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

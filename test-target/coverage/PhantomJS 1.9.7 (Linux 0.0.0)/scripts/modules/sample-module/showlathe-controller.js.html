@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for scripts/modules/sample-module/showlathe-controller.js</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../../prettify.css">
+    <link rel="stylesheet" href="../../../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header low">
+    <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/showlathe-controller.js</span></h1>
+    <h2>
+        Statements: <span class="metric">4.41% <small>(3 / 68)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">0% <small>(0 / 19)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">11.11% <small>(1 / 9)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">4.62% <small>(3 / 65)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; showlathe-controller.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">define(['angular', './sample-module'], function(angular, sampleModule) {
+    'use strict';
+    return sampleModule.controller('ShowLatheCtrl', ['$scope','$http','$stateParams','$timeout', <span class="fstat-no" title="function not covered" >function($scope,$http,$stateParams,$timeout) {</span>
+<span class="cstat-no" title="statement not covered" >        $scope.stateid = $stateParams.data;</span>
+<span class="cstat-no" title="statement not covered" >        $scope.options = { thickness: 5 , mode: 'gauge' , total: 100};</span>
+<span class="cstat-no" title="statement not covered" >        $scope.gaugedata = [{ label: 'Temperature' , value: 0, suffix: '\xB0C' , color: '#d62728' }];</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        $scope.value = 0;</span>
+<span class="cstat-no" title="statement not covered" >        $scope.upperLimit = 6000;</span>
+<span class="cstat-no" title="statement not covered" >        $scope.lowerLimit = 0;</span>
+<span class="cstat-no" title="statement not covered" >        $scope.unit = 'r';</span>
+<span class="cstat-no" title="statement not covered" >        $scope.precision = 0;</span>
+<span class="cstat-no" title="statement not covered" >        $scope.ranges = [{</span>
+            min: 0,
+            max: 1200,
+            color: '#DEDEDE'
+        }, {
+            min: 1200,
+            max: 2400,
+            color: '#8DCA2F'
+        }, {
+            min: 2400,
+            max: 3600,
+            color: '#FDC702'
+        }, {
+            min: 3600,
+            max: 4800,
+            color: '#FF7700'
+        }, {
+            min: 4800,
+            max: 6000,
+            color: '#C50200'
+        }];
+<span class="cstat-no" title="statement not covered" >        var updateLatheStatus = <span class="fstat-no" title="function not covered" >function(){</span></span>
+<span class="cstat-no" title="statement not covered" >            $http.get('/api/ms/lathe/' + $stateParams.data)</span>
+                .success(<span class="fstat-no" title="function not covered" >function(response) {</span>
+<span class="cstat-no" title="statement not covered" >                    $scope.lathestatus = response;</span>
+<span class="cstat-no" title="statement not covered" >                    var power,program,alarm;</span>
+<span class="cstat-no" title="statement not covered" >                    angular.forEach(response, <span class="fstat-no" title="function not covered" >function(data){</span></span>
+                    
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                        switch(data.lable){</span>
+                            case 'rapid traverse':
+<span class="cstat-no" title="statement not covered" >                                $scope.rapidTraverse = data.value;</span>
+<span class="cstat-no" title="statement not covered" >                                break;</span>
+                            case 'spindle speed':
+<span class="cstat-no" title="statement not covered" >                                $scope.gaugedata[0].value =  parseInt(data.value);</span>
+<span class="cstat-no" title="statement not covered" >                                console.log('spindle speed = ' + parseInt(data.value));</span>
+<span class="cstat-no" title="statement not covered" >                                break;</span>
+                            case 'power':
+<span class="cstat-no" title="statement not covered" >                                power = data.value;</span>
+<span class="cstat-no" title="statement not covered" >                                break;</span>
+                            case 'program':
+<span class="cstat-no" title="statement not covered" >                                program = data.value;</span>
+<span class="cstat-no" title="statement not covered" >                                break;</span>
+                            case 'alarm':
+<span class="cstat-no" title="statement not covered" >                                alarm = data.value;</span>
+<span class="cstat-no" title="statement not covered" >                                break;</span>
+                        }
+&nbsp;
+                    });
+<span class="cstat-no" title="statement not covered" >                    var img = 'gray';</span>
+<span class="cstat-no" title="statement not covered" >                    if(power === '1'){</span>
+<span class="cstat-no" title="statement not covered" >                        if(program === '1'){</span>
+<span class="cstat-no" title="statement not covered" >                            img = 'green';</span>
+                        }else{
+<span class="cstat-no" title="statement not covered" >                            img = 'yellow';</span>
+                        }
+                    }
+<span class="cstat-no" title="statement not covered" >                    if(alarm === '1'){</span>
+<span class="cstat-no" title="statement not covered" >                        img = 'red';</span>
+                    }
+<span class="cstat-no" title="statement not covered" >                    $scope.status = img;</span>
+                }).error(<span class="fstat-no" title="function not covered" >function(){</span>
+            });
+        };
+<span class="cstat-no" title="statement not covered" >        setInterval(<span class="fstat-no" title="function not covered" >function(){</span></span>
+<span class="cstat-no" title="statement not covered" >            $scope.$apply(updateLatheStatus);</span>
+        },5000);
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        updateLatheStatus();</span>
+&nbsp;
+<span class="fstat-no" title="function not covered" >        function update() {</span>
+<span class="cstat-no" title="statement not covered" >            $timeout(<span class="fstat-no" title="function not covered" >function() {</span></span>
+<span class="cstat-no" title="statement not covered" >                $scope.value = $scope.gaugedata[0].value;</span>
+<span class="cstat-no" title="statement not covered" >                if ($scope.value &gt; $scope.upperLimit) {</span>
+<span class="cstat-no" title="statement not covered" >                    $scope.value = $scope.lowerLimit;</span>
+                }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                var now = new Date();</span>
+<span class="cstat-no" title="statement not covered" >                var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];</span>
+<span class="cstat-no" title="statement not covered" >                var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                var day = days[now.getDay()];</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                var month = months[now.getMonth()];</span>
+<span class="cstat-no" title="statement not covered" >                var dd = now.getDate();</span>
+<span class="cstat-no" title="statement not covered" >                var yyyy = now.getFullYear();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                var hour=now.getHours();</span>
+<span class="cstat-no" title="statement not covered" >                var minu=now.getMinutes();</span>
+<span class="cstat-no" title="statement not covered" >                var sec=now.getSeconds();</span>
+<span class="cstat-no" title="statement not covered" >                if(sec&lt;10) {<span class="cstat-no" title="statement not covered" >sec='0'+sec;}</span></span>
+<span class="cstat-no" title="statement not covered" >                if(minu&lt;10) {<span class="cstat-no" title="statement not covered" >minu='0'+minu;}</span></span>
+<span class="cstat-no" title="statement not covered" >                if(hour&lt;10) {<span class="cstat-no" title="statement not covered" >hour='0'+hour;}</span></span>
+<span class="cstat-no" title="statement not covered" >                var tt = hour + ':' + minu + ':' + sec;</span>
+<span class="cstat-no" title="statement not covered" >                $scope.myDate = dd;</span>
+<span class="cstat-no" title="statement not covered" >                $scope.myTime = tt;</span>
+<span class="cstat-no" title="statement not covered" >                $scope.myYear = yyyy;</span>
+<span class="cstat-no" title="statement not covered" >                $scope.myMonth = month;</span>
+<span class="cstat-no" title="statement not covered" >                $scope.myDay = day;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                update();</span>
+            }, 1000);
+        }
+<span class="cstat-no" title="statement not covered" >        update();</span>
+&nbsp;
+    }]);
+});</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jul 18 2016 00:48:10 GMT-0700 (PDT)</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

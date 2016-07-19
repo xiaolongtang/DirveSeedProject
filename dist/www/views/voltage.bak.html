@@ -1,0 +1,185 @@
+
+    <style type="text/css">
+.bar-legend,.chart-legend,.doughnut-legend,.line-legend,.pie-legend,.polararea-legend,.radar-legend{list-style-type:none;margin-top:5px;text-align:center;-webkit-padding-start:0;-moz-padding-start:0;padding-left:0}.bar-legend li,.chart-legend li,.doughnut-legend li,.line-legend li,.pie-legend li,.polararea-legend li,.radar-legend li{display:inline-block;white-space:nowrap;position:relative;margin-bottom:4px;border-radius:5px;padding:2px 8px 2px 28px;font-size:smaller;cursor:default}.bar-legend-icon,.chart-legend-icon,.doughnut-legend-icon,.line-legend-icon,.pie-legend-icon,.polararea-legend-icon,.radar-legend-icon{display:block;position:absolute;left:0;top:0;width:20px;height:20px;border-radius:5px}
+/*# sourceMappingURL=angular-chart.min.css.map */
+    </style>
+
+    <style>
+
+        a{ text-decoration:none;}
+    h1{}
+    .m_r_61{margin-right:60px;}
+    .m_r_40{margin-right:45px;}
+    .m_b_35{margin-bottom:35px;}
+
+    .wrapper{width:100%;height:auto;padding:70px 35px 0 271px;box-sizing:border-box;display:block;}
+    .product_cont_box{padding:30px 0 0 40px;}
+    .product_box{width:175px;height:192px;border:1px solid #8D8D8D;float:left;padding:0;box-sizing:border-box;display:block;}
+    .product_img_box{width:100%;height:102px;position:relative;}
+    .p_name{position:absolute;left:0;bottom:0;background:rgba(59,64,94,0.6);width:100%;height:30px;line-height:31px;text-align:center;color:#fff;font-size:20px;z-index:9999;}
+    .product_button{height:38px;line-height:38px;padding:0 5px 0 3px;background:#eeeeee;}
+    .icon_status{float:left;margin-top:4px;}
+    .btn_detail{float:right;width:90px;height:24px;line-height:23px;background:#4F6094;text-align:center;color:#fff;font-size:12px;border:0;border-radius:5px;margin-top:7px;}
+    .btn_detail_readonly{float:right;width:90px;height:24px;line-height:23px;background:#aaa;text-align:center;color:#eee;font-size:12px;border:0;border-radius:5px;margin-top:7px;}
+    .serial_number{height:25px;background:#eee;line-height:25px;color:#333;padding-left:5px;font-size:14px;}
+
+    .cont_detail_box{margin:0;padding:0;width:100%;}
+    .detail_topMsg{height:96px;border-bottom:1px solid #8d8d8d;font-size:24px;color:#666;}
+    .detail_topMsg div{height:96px;line-height:96px;float:left;padding-left:30px;box-sizing:border-box;}
+    .page_name{width:25%;}
+    .page_name span{float:left;}
+    .product_name{width:50%;}
+    .p_status{width:133px;height:45px;background:url(../images/status_open.png) no-repeat;float:right;margin-right:30px;margin-top:26px;}
+    .date{width:25%;float:right!important;border-left:1px solid #8d8d8d;}
+    .date p{margin:0;padding:0;line-height:100%;}
+    .day{float:left;font-size:48px;color:#394553;height:96px;line-height:96px;}
+    .year{float:right;}
+    .year span{display:block;text-align:right;}
+    .txt_name{float:left;}
+    .pic_small{width:70px;height:70px;background:url(../images/product_00.jpg) no-repeat;background-size:70px 70px;border:1px solid #ccc;border-radius:6px;float:left;margin-top:12px;margin-right:12px;}
+
+    .product_detail_box{margin:30px;padding:0;}
+    .p_pic_large{width:43%;float:left;margin:0;padding:0;height:455px;oveflow:hidden;}
+    .detail_table{width:57%;float:left;}
+    .detail_table table{background:#eee;color:#333;}
+    .detail_table th{background:#4F6094;width:40%;height:38px;border-bottom:1px solid #627383;text-align:left;padding-left:15px;box-sizing:border-box;font-weight:normal!important;font-size:16px;color:#fff;}
+    .detail_table td{border-bottom:1px solid #aaa;text-align:center;}
+    .arrow_white{margin-right:10px;}
+
+    .graph_box{width:43%;float:left;}
+    .graph_box_two{height:400px;box-shadow:0 0px 5px #ccc;padding:15px;margin-bottom:30px;margin-left:30px;position:relative;}
+     .graph_box2{width:43%;float:right;}
+    .graph_box3{width:100%;float:right;}
+    .graph_box_two3{height:200px;box-shadow:0 0px 5px #ccc;padding:15px;margin-bottom:30px;margin-left:30px;position:relative; }
+
+    .graph_title{font-size:18px;color:#333;display:block;margin-bottom:10px;}
+    .speed_value{font-size:14px;color:#4F6094;margin-top:10px;display:block;float:left;margin-right:30px;margin-left:20px;}
+    .value{border-radius:30px;box-shadow:0 0 5px #aaa;font-size:18px;padding:5px;background:#4F6094;text-align:center;display:inline-block;color:#fff;}
+    .temperature_graph{position:absolute;top:0;right:0;margin:0px;}
+    .temperature_graph2{position:absolute;top:200px;right:0;margin:0px;}
+    .temperature_num{width:105px;height:60px;border-radius:30px;box-shadow:0 0px 5px #999;text-align:center;line-height:65px;float:right;margin-right:20%;font-size:48px;color:#666;margin-top:15%;}
+    .rapid_left{font-size:26px;color:#666;margin-left:6%;margin-top:15%;}
+    .rapid_right{margin-right:0;margin-top:7%;}
+
+    .switch_1_bg{width:130px;height:22px;background:#4F6094;border-radius:30px;box-shadow:1px 1px 1px #ccc;margin:0 auto;}
+    .switch_btn{width:65px;height:22px;line-height:24px;border-radius:30px;font-size:18x;text-align:center;float:left;}
+    .on{background:#fff;box-shadow:2px 2px 3px #ccc inset;color:#333;}
+    .off{background:none;color:#8595ac;}
+    .switch_2_bg{width:195px;height:22px;background:#4F6094;border-radius:30px;box-shadow:1px 1px 1px #ccc;margin:0 auto;}
+
+
+
+    .f_l{float:left;}
+    .f_r{float:right;}
+
+    .restPart p
+    {
+         font-size:16px;
+         color:#4F6094;
+    }
+
+    </style>
+    <script src="bower_components/highcharts/highcharts.js"></script>
+    <script src="bower_components/highcharts/highcharts-more.js"></script>
+    <script src="bower_components/highcharts/modules/exporting.js"></script>
+
+    <px-card icon="fa-suitcase" header-text="Voltage" chevron>
+
+
+    <div class="cont_detail_box">
+
+     <div class="product_detail_box">
+         <div class="detail_table">
+    </div>
+
+    <!--Voltage-->
+    <div class="graph_box">
+        <div class="graph_box_two temperature">
+            <span class="graph_title" >Voltage</span>
+            <span style="font-size:16px;color:#4F6094;">Vol_In Value:{{voltagestatus.value}}v</span>
+            <span class="temperature_graph">
+
+                <div width="260" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+            </span>
+
+             <span style="font-size:16px;color:#4F6094;position:absolute;top:240px;left:15px;margin:0px;">Vol_Out Value:{{voltagestatus.value}}v</span>
+            <span class="temperature_graph2">
+
+                <div width="260" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+            </span>
+        </div>
+        
+    </div>
+    </div>
+
+    <!--Current-->
+     <div class="cont_detail_box">
+
+     <div class="product_detail_box">
+         <div class="detail_table">
+    </div>
+
+        <div class="graph_box2">
+        <div class="graph_box_two temperature">
+            <span class="graph_title">Current</span>
+            <span style="font-size:16px;color:#4F6094;">Cur_In Value:{{voltagestatus.value}}A</span>
+            <span class="temperature_graph">
+
+                <div width="260" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+            </span>
+
+             <span style="font-size:16px;color:#4F6094;position:absolute;top:240px;left:15px;margin:0px;">Cur_Out Value:{{voltagestatus.value}}A</span>
+            <span class="temperature_graph2">
+
+                <div width="260" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+            </span>
+        </div>
+        
+    </div>
+    </div>
+
+    </div> 
+
+
+   <!--last part-->
+<div class="cont_detail_box">
+
+     <div class="product_detail_box">
+         <div class="detail_table">
+    </div>
+
+        <div class="graph_box3">
+        <div class="graph_box_two3 temperature">
+
+        <!--other three-->
+        <div class="restPart">
+            <p>Motor Type: IM</p><p>Fan Status: Running</p>
+            <p>Continuous Time: 300 hrs</p><p>Manufacture Date: 2014</p>
+        </div>
+        <!--Title-->
+        <div style="position:absolute;right:280px;top:20px;">
+            <span class="graph_title" >Rated Power</span>
+            <span style="font-size:16px;color:#4F6094;">Pwr_Rtd Value:{{voltagestatus.value}}MW</span>
+        </div>
+
+            <span class="temperature_graph">
+
+                <div width="260" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+            </span>
+
+        </div>
+        
+    </div>
+    </div>
+
+    </div> 
+    <!--new chart-->
+
+<canvas id="doughnut" class="chart chart-doughnut" chart-legend="true"
+
+ chart-data="datapi" chart-labels="labels">
+
+</canvas>
+    </px-card>
+
+

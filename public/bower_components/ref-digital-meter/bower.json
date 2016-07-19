@@ -1,0 +1,25 @@
+{
+    "name": "ref-digital-meter",
+    "version": "0.0.1",
+    "main": [
+        "ref-digital-meter.html"
+    ],
+    "ignore": [
+        ".*",
+        "npm-debug.log",
+        "Gruntfile.js",
+        "sass",
+        "bower_components",
+        "node_modules",
+        "test"
+    ],
+    "dependencies": {
+        "polymer": "~1.0.0",
+        "px-theme": "https://github.com/predixdev/px-theme.git#~0.3.13"
+    },
+    "devDependencies": {
+        "iron-component-page" : "PolymerElements/iron-component-page#~v1.0.0",
+        
+        "px-starter-kit-design": "https://github.com/predixdev/px-starter-kit-design.git#~0.4.0"
+    }
+}

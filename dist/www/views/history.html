@@ -1,0 +1,38 @@
+
+
+<px-card icon="fa-suitcase" header-text="History" chevron>
+
+     <px-chart tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
+    <px-chart-controls data-controls show-date-range="true" display-options='{ "displayType": "normal","submitButtonText": "Update", "submitButtonIcon": "icon-arrow-right" }'></px-chart-controls>
+    
+    <px-chart-yaxis title='{"text": "Axis"}' id="firstAxis" offset="0"></px-chart-yaxis>
+    <px-chart-series-line id="Vol_In" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="V" data="{{data3}}">
+    </px-chart-series-line>
+
+    <!-- <px-chart-series-line id="Mtr_Type" axis-id="firstAxis" upper-threshold="5" lower-threshold="0" units="pm" data="{{data1}}">
+    </px-chart-series-line> -->
+
+    <!-- <px-chart-series-line id="Pwr_Rtd" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="mw" data="{{data2}}">
+    </px-chart-series-line> -->
+
+    <px-chart-series-line id="Vol_Out" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="V" data="{{data4}}">
+    </px-chart-series-line>
+
+    <px-chart-series-line id="Cur_In" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="A" data="{{data5}}">
+    </px-chart-series-line>
+
+    <px-chart-series-line id="Cur_Out" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="A" data="{{data6}}">
+    </px-chart-series-line>
+
+    <!-- <px-chart-series-line id="Sts_Fan" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="r" data="{{data7}}">
+    </px-chart-series-line> -->
+
+   <!--  <px-chart-series-line id="T_Fan" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="hrs" data="{{data8}}">
+    </px-chart-series-line> -->
+
+    <!-- <px-chart-series-line id="T_Man_Yr" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="year" data="{{data9}}">
+    </px-chart-series-line> -->
+
+  </px-chart>
+
+</px-card>
