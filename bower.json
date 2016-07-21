@@ -43,7 +43,8 @@
     "ngRadialGauge": "https://github.com/stherrienaspnet/ngRadialGauge.git",
     "angular-openlayers-directive": "~1.15.1",
     "openlayers3": "~3.0.0",
-    "angular-chart.js": "~0.10.2"
+    "angular-chart.js": "~0.10.2",
+    "Chart.js": "~2.1.6"
   },
   "resolutions": {
     "es6-promise": "~v3.0.2",

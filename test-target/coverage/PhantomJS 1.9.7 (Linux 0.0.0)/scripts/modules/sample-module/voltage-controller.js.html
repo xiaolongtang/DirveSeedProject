@@ -15,10 +15,10 @@
 <div class="header low">
     <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/voltage-controller.js</span></h1>
     <h2>
-        Statements: <span class="metric">2.44% <small>(3 / 123)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
-        Branches: <span class="metric">0% <small>(0 / 25)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
-        Functions: <span class="metric">5.88% <small>(1 / 17)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
-        Lines: <span class="metric">2.5% <small>(3 / 120)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Statements: <span class="metric">2.26% <small>(3 / 133)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Branches: <span class="metric">0% <small>(0 / 27)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">5.56% <small>(1 / 18)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">2.31% <small>(3 / 130)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
     </h2>
     <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; voltage-controller.js</div>
@@ -238,7 +238,23 @@
 211
 212
 213
-214</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -275,6 +291,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -344,6 +362,20 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -473,15 +505,17 @@
         }, {
             min: 2000,
             max: 4000,
-            color: '#8DCA2F'
+            color: '#FF7700'
         }, {
             min: 4000,
             max: 6000,
             color: '#FDC702'
+&nbsp;
         }, {
             min: 6000,
             max: 8000,
-            color: '#FF7700'
+            
+            color: '#8DCA2F'
         }, {
             min: 8000,
             max: 10000,
@@ -557,6 +591,20 @@
 <span class="cstat-no" title="statement not covered" >                var typeValue=type.value;</span>
 <span class="cstat-no" title="statement not covered" >                console.log("mdate:"+typeValue);</span>
 <span class="cstat-no" title="statement not covered" >                    $scope.mdate=typeValue;</span>
+              });
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            $http.get('/api/ms/GetLatestVoltage?number=10').success(<span class="fstat-no" title="function not covered" >function(data){</span></span>
+<span class="cstat-no" title="statement not covered" >                var type=data;</span>
+<span class="cstat-no" title="statement not covered" >                var typeValue=type.value;</span>
+<span class="cstat-no" title="statement not covered" >                console.log("months&amp;day:"+typeValue);</span>
+<span class="cstat-no" title="statement not covered" >                    var num=typeValue.toString();</span>
+<span class="cstat-no" title="statement not covered" >                    if(num.length==3){</span>
+<span class="cstat-no" title="statement not covered" >                        $scope.month=num.charAt(0);</span>
+<span class="cstat-no" title="statement not covered" >                        $scope.day=num.charAt(1)+num.charAt(2);</span>
+                    }else{
+<span class="cstat-no" title="statement not covered" >                        $scope.month=num.charAt(0)+num.charAt(1);</span>
+<span class="cstat-no" title="statement not covered" >                        $scope.day=num.charAt(2)+num.charAt(3);</span>
+                    }
               });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >             $http.get('/api/ms/GetLatestVoltage?number=5').success(<span class="fstat-no" title="function not covered" >function(data){</span></span>
@@ -669,7 +717,7 @@
 
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Jul 18 2016 00:48:10 GMT-0700 (PDT)</div>
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jul 21 2016 01:52:39 GMT-0700 (PDT)</div>
 </div>
 <script src="../../../prettify.js"></script>
 <script>

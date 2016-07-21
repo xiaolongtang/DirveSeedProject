@@ -1,38 +1,85 @@
+    <style type="text/css">
+    .box1{width:100%;float:left;}
+
+    .gbox{height:440px;box-shadow:0 0px 5px #ccc;padding:15px;margin-bottom:30px;margin-left:30px;position:relative;background-color:#F2F2F2;}
+    .boxTitle
+                    {
+                        background-color:#F2F2F2;
+                        width: 100%;
+                        height: 20px;
+                        position: absolute;
+                        top:0%;
+                        left: 0px;
+                    }
+    .boxTitle p{font-size: 18 px;position: absolute;left: 12 px;}
+
+    </style>
+
+            <px-card icon="fa-suitcase" header-text="History" chevron>
+             
+             <!--    <div class="boxTitle">
+                               <p>Current Output</p>
+                            </div> -->
+                    <div class="box1">
+
+                        <div class="gbox">
+                          
+                             <!--chart 4-->
+                            <px-chart class="chart" tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
+                                <px-chart-yaxis title='{"text": "Axis"}' id="secondAxis" offset="0"></px-chart-yaxis>
+
+                                <px-chart-series-line id="Current Output" axis-id="secondAxis" upper-threshold="320" lower-threshold="280" units="A" data="{{data6}}" >
+                            </px-chart>
+                        </div>
+                    </div>
+                    
+
+                    <div class="box1">
+
+                        <div class="gbox">
+                                                <!--chart 3-->
+              <px-chart tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
+              <px-chart-yaxis title='{"text": "Axis"}' id="fouthAxis" offset="0"></px-chart-yaxis>
+
+                <px-chart-series-line id="Current Input" axis-id="fouthAxis" upper-threshold="320" lower-threshold="280" units="A" data="{{data5}}">
+                </px-chart-series-line>
+              </px-chart>
+
+                        </div></div>
 
 
-<px-card icon="fa-suitcase" header-text="History" chevron>
+                    <div class="box1">
 
-     <px-chart tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
-    <px-chart-controls data-controls show-date-range="true" display-options='{ "displayType": "normal","submitButtonText": "Update", "submitButtonIcon": "icon-arrow-right" }'></px-chart-controls>
-    
-    <px-chart-yaxis title='{"text": "Axis"}' id="firstAxis" offset="0"></px-chart-yaxis>
-    <px-chart-series-line id="Vol_In" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="V" data="{{data3}}">
-    </px-chart-series-line>
+                        <div class="gbox">
+                             <!--chart 1-->
+                 <px-chart tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
+               <!--  <px-chart-controls data-controls show-date-range="true" display-options='{ "displayType": "normal","submitButtonText": "Update", "submitButtonIcon": "icon-arrow-right" }'></px-chart-controls> -->
+                
+                <px-chart-yaxis title='{"text": "Axis"}' id="firstAxis" offset="0"></px-chart-yaxis>
+                <px-chart-series-line id="Voltage Input" axis-id="firstAxis" upper-threshold="6700" lower-threshold="6500" units="V" data="{{data3}}">
+                </px-chart-series-line>
 
-    <!-- <px-chart-series-line id="Mtr_Type" axis-id="firstAxis" upper-threshold="5" lower-threshold="0" units="pm" data="{{data1}}">
-    </px-chart-series-line> -->
+                <!-- <px-chart-series-line id="Cur_Out" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="A" data="{{data6}}">
+                </px-chart-series-line> -->
 
-    <!-- <px-chart-series-line id="Pwr_Rtd" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="mw" data="{{data2}}">
-    </px-chart-series-line> -->
+              </px-chart>
+                            
+                        </div></div>
 
-    <px-chart-series-line id="Vol_Out" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="V" data="{{data4}}">
-    </px-chart-series-line>
 
-    <px-chart-series-line id="Cur_In" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="A" data="{{data5}}">
-    </px-chart-series-line>
+                    <div class="box1">
 
-    <px-chart-series-line id="Cur_Out" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="A" data="{{data6}}">
-    </px-chart-series-line>
+                        <div class="gbox">
+                            <!--chart 2-->
+              <px-chart tooltip-type="condensed" series-events-width="1" zoom-type="xy" zoom-controls="hidecontrols">
 
-    <!-- <px-chart-series-line id="Sts_Fan" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="r" data="{{data7}}">
-    </px-chart-series-line> -->
+              <px-chart-yaxis title='{"text": "Axis"}' id="thirdAxis" offset="0"></px-chart-yaxis>
 
-   <!--  <px-chart-series-line id="T_Fan" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="hrs" data="{{data8}}">
-    </px-chart-series-line> -->
+              <px-chart-series-line id="Voltage Output" axis-id="thirdAxis" upper-threshold="6700" lower-threshold="6500" units="V" data="{{data4}}">
+              </px-chart-series-line>
 
-    <!-- <px-chart-series-line id="T_Man_Yr" axis-id="firstAxis" upper-threshold="10000" lower-threshold="0" units="year" data="{{data9}}">
-    </px-chart-series-line> -->
-
-  </px-chart>
-
-</px-card>
+              </px-chart>  
+                            
+                        </div></div>
+               
+            </px-card>

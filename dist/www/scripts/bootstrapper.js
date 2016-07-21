@@ -30121,15 +30121,17 @@ define('modules/sample-module/voltage-controller',['angular', './sample-module']
         }, {
             min: 2000,
             max: 4000,
-            color: '#8DCA2F'
+            color: '#FF7700'
         }, {
             min: 4000,
             max: 6000,
             color: '#FDC702'
+
         }, {
             min: 6000,
             max: 8000,
-            color: '#FF7700'
+            
+            color: '#8DCA2F'
         }, {
             min: 8000,
             max: 10000,
@@ -30205,6 +30207,20 @@ define('modules/sample-module/voltage-controller',['angular', './sample-module']
                 var typeValue=type.value;
                 console.log("mdate:"+typeValue);
                     $scope.mdate=typeValue;
+              });
+
+            $http.get('/api/ms/GetLatestVoltage?number=10').success(function(data){
+                var type=data;
+                var typeValue=type.value;
+                console.log("months&day:"+typeValue);
+                    var num=typeValue.toString();
+                    if(num.length==3){
+                        $scope.month=num.charAt(0);
+                        $scope.day=num.charAt(1)+num.charAt(2);
+                    }else{
+                        $scope.month=num.charAt(0)+num.charAt(1);
+                        $scope.day=num.charAt(2)+num.charAt(3);
+                    }
               });
 
              $http.get('/api/ms/GetLatestVoltage?number=5').success(function(data){

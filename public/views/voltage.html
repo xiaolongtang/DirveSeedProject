@@ -44,6 +44,7 @@
 		                left: 15%;
 		                top:35%;
 		                color: #4173b8;
+		                font-size: 18px;
 		            }
 
 		            .content1
@@ -52,6 +53,7 @@
 		                left: 17%;
 		                top: 50%;
 		                color: #db524b;
+		                font-size: 18px;
 		            }
 
 		            .title2
@@ -60,6 +62,7 @@
 		                left: 35%;
 		                top:35%;
 		                color: #4173b8;
+		                font-size: 18px;
 		            }
 
 		            .content2
@@ -68,6 +71,7 @@
 		                left: 36%;
 		                top: 50%;
 		                color: #58b957;
+		                font-size: 18px;
 		            }
 
 		            .title3
@@ -76,6 +80,7 @@
 		                left: 52%;
 		                top: 35%;
 		                color: #4173b8;
+		                font-size: 18px;
 		            }
 
 		            .content3
@@ -84,6 +89,7 @@
 		                left: 54%;
 		                top: 50%;
 		                color: #f2ae43;
+		                font-size: 18px;
 		            }
 
 		            .title4
@@ -92,6 +98,7 @@
 		                left: 71%;
 		                top: 35%;
 		                color: #4173b8;
+		                font-size: 18px;
 		            }
 
 		            .content4
@@ -100,31 +107,32 @@
 		                left: 75%;
 		                top: 50%;
 		                color: #56c0e0;
+		                font-size: 18px;
 		            }
 
 		            .bl1
 		            {
 		                position: absolute;
 		                left: 13%;
-		                top: 70%;
+		                top: 74%;
 		            }
 		            .bl2
 		            {
 		                position: absolute;
 		                left: 33%;
-		                top: 70%;
+		                top: 74%;
 		            }
 		            .bl3
 		            {
 		                position: absolute;
 		                left: 52%;
-		                top: 70%;
+		                top: 74%;
 		            }
 		            .bl4
 		            {
 		                position: absolute;
 		                left: 72%;
-		                top: 70%;
+		                top: 74%;
 		            }
 		            .boxTitle
 		            {
@@ -201,7 +209,7 @@
 		                    <p class="content3">{{ctime}}hrs</p>
 
 		                    <p class="title4">Manufacture Date</p>
-		                    <p class="content4">{{mdate}}</p>
+		                    <p class="content4">{{mdate}}.{{month}}.{{day}}</p>
 		                </div>
 
 
@@ -224,15 +232,17 @@
 
 		            <div class="gbox2">
 		                <div class="boxTitle">
-		                    <p>Voltage</p>
+		                    <p>Grid</p>
 		                </div>
 		                <!--chart-->
 		                <div class="chart1" width="220" ng-radial-gauge ranges="ranges" value="value" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
 
-		                <div class="chart2" width="220" ng-radial-gauge ranges="ranges" value="value4" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
+		                <div class="chart2" width="220" ng-radial-gauge ranges="ranges2" value="value5" value-unit="unit2" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit2" class="speed_svg"></div>
+
+		                
 
 		                <p class="chartTitle1">Vol_In Value:{{voltagestatus.value}}V</p>
-		                <p class="chartTitle2">Vol_Out Value:{{value4}}V</p>
+		                <p class="chartTitle2">Cur_In Value:{{value5}}A</p>
 		            </div>
 		        </div>
 
@@ -240,14 +250,14 @@
 
 		            <div class="gbox2">
 		                <div class="boxTitle">
-		                    <p>Current</p>
+		                    <p>Motor</p>
 		                </div>
 		                 <!--chart-->
-		                <div class="chart1" width="220" ng-radial-gauge ranges="ranges2" value="value5" value-unit="unit2" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit2" class="speed_svg"></div>
+		                <div class="chart1" width="220" ng-radial-gauge ranges="ranges" value="value4" value-unit="unit" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit" class="speed_svg"></div>
 
 		                <div class="chart2" width="220" ng-radial-gauge ranges="ranges2" value="value6" value-unit="unit2" precision="precision" lower-limit="lowerLimit" upper-limit="upperLimit2" class="speed_svg"></div>
 
-		                <p class="chartTitle1">Cur_In Value:{{value5}}A</p>
+		                <p class="chartTitle1">Vol_Out Value:{{value4}}V</p>
 		                <p class="chartTitle2">Cur_Out Value:{{value6}}A</p>
 		            </div>
 		        </div>
