@@ -30458,9 +30458,16 @@ define('modules/sample-module/assethistory-controller',['angular', './sample-mod
         };
     }]);
 });
+define('modules/sample-module/historyfile-controller',['angular', './sample-module'], function(angular, sampleModule) {
+		    'use strict';
+		    return sampleModule.controller('HistoryFileCtrl', ['$scope','$http', function($scope,$http,$stateParams) {
+		    	$scope.word='test';
+		    }]);
+		});
 define('modules/sample-module/main',['./sample-module', './sample-directive', './sample-filter', './sample-service', './dashboard-controller',
     './sample-controller', './predix-asset-service', './predix-user-service', './predix-view-service',
-    './lathestatus-controller','./showlathe-controller','./voltage-controller','./history-controller','./assethistory-controller'], function() {
+    './lathestatus-controller','./showlathe-controller','./voltage-controller','./history-controller','./assethistory-controller'
+    ,'./historyfile-controller'], function() {
 
 });
 
@@ -30551,6 +30558,12 @@ define('routes',['angular', 'angular-ui-router'], function(angular) {
                 url: '/assethistory',
                 templateUrl: 'views/assethistory.html',
                 controller: 'AssetHistoryCtrl'
+            })
+            .state('historyfile', {
+                parent: 'secure',
+                url: '/historyfile',
+                templateUrl: 'views/historyfile.html',
+                controller: 'HistoryFileCtrl'
             });
 
 
@@ -32760,7 +32773,8 @@ define('app',[
             tabs: [
                 {icon: 'fa-tachometer', state: 'dashboards', label: 'Asset Map'},
                 {icon: 'fa-comment-o', state: 'lathestatus', label: 'Asset Status'},
-                {icon: 'fa-comment-o', state: 'assethistory', label: 'Asset History'}
+                {icon: 'fa-comment-o', state: 'assethistory', label: 'Asset History'},
+                {icon: 'fa-comment-o', state: 'historyfile', label: 'History Files'}
                 // {icon: 'fa-file-o', state: 'blankpage', label: 'Report', subitems: [
                 //     {state: 'blanksubpage', label: 'Blank Sub Page'}
                 // ]}

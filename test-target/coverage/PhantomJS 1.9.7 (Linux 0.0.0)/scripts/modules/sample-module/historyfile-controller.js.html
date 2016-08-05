@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Code coverage report for scripts/modules/sample-module/sample-service.js</title>
+    <title>Code coverage report for scripts/modules/sample-module/historyfile-controller.js</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../../prettify.css">
     <link rel="stylesheet" href="../../../base.css">
@@ -12,16 +12,16 @@
     </style>
 </head>
 <body>
-<div class="header high">
-    <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/sample-service.js</span></h1>
+<div class="header medium">
+    <h1>Code coverage report for <span class="entity">scripts/modules/sample-module/historyfile-controller.js</span></h1>
     <h2>
-        Statements: <span class="metric">100% <small>(3 / 3)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Statements: <span class="metric">66.67% <small>(2 / 3)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         Branches: <span class="metric">100% <small>(0 / 0)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
-        Functions: <span class="metric">100% <small>(1 / 1)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
-        Lines: <span class="metric">100% <small>(3 / 3)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">50% <small>(1 / 2)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">66.67% <small>(2 / 3)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
     </h2>
-    <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; sample-service.js</div>
+    <div class="path"><a href="../../../index.html">All files</a> &#187; <a href="index.html">scripts/modules/sample-module/</a> &#187; historyfile-controller.js</div>
 </div>
 <div class="body">
 <pre><table class="coverage">
@@ -30,23 +30,17 @@
 3
 4
 5
-6
-7
-8</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+6</td><td class="line-coverage"><span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">define(['angular', './sample-module'], function(angular, sampleModule) {
-    'use strict';
-&nbsp;
-    sampleModule.value('version', '0.1');
-&nbsp;
-    return sampleModule;
-});
-&nbsp;</pre></td></tr>
+		    'use strict';
+		    return sampleModule.controller('HistoryFileCtrl', ['$scope','$http', <span class="fstat-no" title="function not covered" >function($scope,$http,$stateParams) {</span>
+<span class="cstat-no" title="statement not covered" >		    	$scope.word='test';</span>
+		    }]);
+		});</pre></td></tr>
 </table></pre>
 
 </div>

@@ -72,6 +72,12 @@ define(['angular', 'angular-ui-router'], function(angular) {
                 url: '/assethistory',
                 templateUrl: 'views/assethistory.html',
                 controller: 'AssetHistoryCtrl'
+            })
+            .state('historyfile', {
+                parent: 'secure',
+                url: '/historyfile',
+                templateUrl: 'views/historyfile.html',
+                controller: 'HistoryFileCtrl'
             });
 
 

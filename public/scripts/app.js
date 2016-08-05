@@ -46,7 +46,8 @@ define([
             tabs: [
                 {icon: 'fa-tachometer', state: 'dashboards', label: 'Asset Map'},
                 {icon: 'fa-comment-o', state: 'lathestatus', label: 'Asset Status'},
-                {icon: 'fa-comment-o', state: 'assethistory', label: 'Asset History'}
+                {icon: 'fa-comment-o', state: 'assethistory', label: 'Asset History'},
+                {icon: 'fa-comment-o', state: 'historyfile', label: 'History Files'}
                 // {icon: 'fa-file-o', state: 'blankpage', label: 'Report', subitems: [
                 //     {state: 'blanksubpage', label: 'Blank Sub Page'}
                 // ]}
