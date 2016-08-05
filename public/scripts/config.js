@@ -71,6 +71,8 @@ require.config({
         //map
         'ol':'../bower_components/openlayers3/build/ol',
         'easypiechart':'../bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart',
+        //dropzone
+        'dropzone':'../bower_components/dropzone/dist/dropzone',
     },
     priority: [
         'jquery',

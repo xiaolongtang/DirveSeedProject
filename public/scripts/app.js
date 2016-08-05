@@ -12,7 +12,8 @@ define([
     'ng-bind-polymer',
     'ngRadialGauge',
     'ol',
-    'easypiechart'
+    'easypiechart',
+    'dropzone'
 ], function ($, angular) {
     'use strict';
 
