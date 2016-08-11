@@ -30469,7 +30469,7 @@ define('modules/sample-module/historyfile-controller',['angular', './sample-modu
 
 		    	 setInterval(function(){
             $scope.$apply(updateLatheStatus);
-        },1000);
+        },20000);
 
         updateLatheStatus();
 		    }]);

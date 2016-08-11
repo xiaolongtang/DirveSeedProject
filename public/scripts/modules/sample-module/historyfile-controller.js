@@ -9,7 +9,7 @@ define(['angular', './sample-module'], function(angular, sampleModule,dropzone) 
 
 		    	 setInterval(function(){
             $scope.$apply(updateLatheStatus);
-        },1000);
+        },20000);
 
         updateLatheStatus();
 		    }]);

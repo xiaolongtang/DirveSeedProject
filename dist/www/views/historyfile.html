@@ -5474,11 +5474,11 @@ body.loading .loading-modal {
         <table class="table">
             <tbody class="table tbody">
             <tr ng-repeat="bimage in bimages">
-                <td class="table td"><a th:href=""><span
+                <td class="table td"><a href="https://my-store-aws.run.aws-usw02-pr.ice.predix.io/v1/blob/{{bimage.key}}"><span
                         th:inline="text">{{bimage.key}}</span></a>
                 </td>
                 <td class="table td">
-                    <a href="#" class="delete-blob-link" th:attr="data-blob-id={{bimage.bucketName}}">Delete</a>
+                    <!--<a href="#{{bimage.key}}" class="delete-blob-link" >Delete</a>-->
                 </td>
             </tr>
             </tbody>
@@ -5497,11 +5497,13 @@ body.loading .loading-modal {
 
    $(function() {
        $('.delete-blob-link').click(function(event) {
+       	alert('click');
+       	alert($(event.target).attr('href'));
        $.ajax({
            url:'/v1/blob/' + $(event.target).attr('data-blob-id'),
            type: 'DELETE',
            success: function(){
-                alert('Successfully deleted file: ' + $(event.target).attr('data-blob-id'));
+                alert('Successfully deleted file: ' + $(event.target).attr('href'));
            },
            error : function(request) {
                 alert('Error deleting file: ' + $(event.target).attr('data-blob-id'));
