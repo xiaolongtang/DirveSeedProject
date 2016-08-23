@@ -1,0 +1,13 @@
+---
+applications:
+  - name: my_seed
+    buildpack: predix_openresty_buildpack
+    path: dist
+    memory: 64M
+    stack: cflinuxfs2
+    services:
+            - my-redis # change this to your redis service instance name
+            - my_view # change this to your view service instance name
+    env:
+      UAA_SERVER_URL: https://d106d990-b436-4079-a3e7-4f9ef38839bc.predix-uaa.run.aws-usw02-pr.ice.predix.io
+      REDIS: redis-1
