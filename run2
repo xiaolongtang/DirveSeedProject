@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# sql_table_stats.sh
+# 统计 .log/.log.gz 中各表的 select/update/delete/insert 次数（包含子查询）
+# 输出到屏幕，并写入 sql_stats.csv
+
+if [ $# -lt 1 ]; then
+  echo "用法: $0 file1.log[.gz] [file2.log[.gz] ...]" >&2
+  exit 1
+fi
+
+(
+  for f in "$@"; do
+    case "$f" in
+      *.gz) zcat -- "$f" ;;
+      *)    cat  -- "$f" ;;
+    esac
+  done
+) | awk '
+BEGIN{
+  IGNORECASE=1
+}
+function norm(s,   t){
+  t = s
+  gsub(/\r/," ",t)
+  gsub(/\t/," ",t)
+  gsub(/`|"/,"",t)
+  gsub(/[;]+/," ; ",t)
+  return tolower(t)
+}
+
+{
+  s = norm($0)
+
+  sql = s
+  while (match(sql, /[[:space:]]update[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[1]
+    gsub(/[),;]/, "", t)
+    cnt["update", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  sql = s
+  while (match(sql, /insert[[:space:]]+(into[[:space:]]+)?([a-z0-9_.$]+)/, m)) {
+    t = m[2]
+    gsub(/[),;]/, "", t)
+    cnt["insert", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  sql = s
+  while (match(sql, /delete[[:space:]]+from[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[1]
+    gsub(/[),;]/, "", t)
+    cnt["delete", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  sql = s
+  while (match(sql, /(from|join)[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[2]
+    if (t != "(") {
+      gsub(/[),;]/, "", t)
+      cnt["select", t]++
+    }
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+}
+
+END{
+  # 输出到屏幕
+  for (k in cnt) {
+    split(k, a, SUBSEP)
+    printf "%s %s %d\n", a[1], a[2], cnt[k]
+  }
+
+  # 输出到 CSV
+  out = "sql_stats.csv"
+  print "operation,table,count" > out
+  for (k in cnt) {
+    split(k, a, SUBSEP)
+    printf "%s,%s,%d\n", a[1], a[2], cnt[k] >> out
+  }
+  close(out)
+  print "结果已写入 " out > "/dev/stderr"
+}
+' | sort -k1,1 -k2,2
