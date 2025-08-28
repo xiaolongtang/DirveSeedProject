@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# sql_table_stats.sh
+# 统计 .log/.log.gz 中各表的 select/update/delete/insert 次数（包含子查询）
+
+if [ $# -lt 1 ]; then
+  echo "用法: $0 file1.log[.gz] [file2.log[.gz] ...]" >&2
+  exit 1
+fi
+
+# 读取所有文件（支持 .gz 与普通文本）
+# 然后用 awk 解析并统计
+(
+  for f in "$@"; do
+    case "$f" in
+      *.gz) zcat -- "$f" ;;
+      *)    cat  -- "$f" ;;
+    esac
+  done
+) | awk '
+BEGIN{
+  IGNORECASE=1   # 不区分大小写
+}
+# 简单归一化
+function norm(s,   t){
+  t = s
+  gsub(/\r/," ",t)
+  gsub(/\t/," ",t)
+  gsub(/`|"/,"",t)     # 去掉反引号/双引号，适配 MySQL/Oracle/PG 常见写法
+  gsub(/[;]+/," ; ",t) # 分号两侧加空格，便于匹配
+  return tolower(t)
+}
+
+{
+  s = norm($0)
+
+  # === UPDATE 表 ===
+  sql = s
+  while (match(sql, /[[:space:]]update[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[1]
+    gsub(/[),;]/, "", t)
+    cnt["update", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  # === INSERT INTO 表 ===（标准写法）
+  sql = s
+  while (match(sql, /insert[[:space:]]+(into[[:space:]]+)?([a-z0-9_.$]+)/, m)) {
+    t = m[2]
+    gsub(/[),;]/, "", t)
+    cnt["insert", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  # === DELETE FROM 表 ===
+  sql = s
+  while (match(sql, /delete[[:space:]]+from[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[1]
+    gsub(/[),;]/, "", t)
+    cnt["delete", t]++
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+
+  # === SELECT：按 FROM/JOIN 后的表计数 ===
+  # 子查询里也会出现 FROM/JOIN，因此能把嵌套 SELECT 统计进去
+  sql = s
+  while (match(sql, /(from|join)[[:space:]]+([a-z0-9_.$]+)/, m)) {
+    t = m[2]
+    # 过滤形如 "from (" 的情况（子查询别名前会有括号）
+    if (t != "(") {
+      gsub(/[),;]/, "", t)
+      cnt["select", t]++
+    }
+    sql = substr(sql, RSTART + RLENGTH)
+  }
+}
+
+END{
+  # 输出：动词 表名 次数
+  for (k in cnt) {
+    split(k, a, SUBSEP)
+    printf "%s %s %d\n", a[1], a[2], cnt[k]
+  }
+}
+' | sort -k1,1 -k2,2
