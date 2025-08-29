@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# sql_where_stats_fast.sh
+# 统计指定表在 SQL 日志中的 WHERE 条件（含子查询），输出 CSV（高性能版）
+# 用法：
+#   ./sql_where_stats_fast.sh -t <table> [-o out.csv] [-j N] files...
+
+set -euo pipefail
+
+usage() {
+  echo "用法: $0 -t <table_name> [-o out.csv] [-j N] file1.log[.gz] [file2.log[.gz] ...]" >&2
+  exit 1
+}
+
+OUT=""
+TABLE=""
+JOBS=""
+while getopts ":t:o:j:" opt; do
+  case "$opt" in
+    t) TABLE="$OPTARG" ;;
+    o) OUT="$OPTARG"  ;;
+    j) JOBS="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND-1))
+[ -z "${TABLE:-}" ] && usage
+[ $# -lt 1 ] && usage
+
+TABLE_LC="$(printf '%s' "$TABLE" | tr 'A-Z' 'a-z')"
+OUT="${OUT:-where_stats_${TABLE_LC}.csv}"   # <-- 修复：去掉多余的单引号
+
+# 选择 awk 实现
+AWK_BIN="${AWK_BIN:-}"
+if command -v mawk >/dev/null 2>&1; then
+  AWK_BIN="$(command -v mawk)"
+else
+  AWK_BIN="$(command -v awk)"
+fi
+
+# 解压函数（优先 pigz 多线程）
+decomp() {
+  if [[ "$1" == *.gz ]]; then
+    if command -v pigz >/dev/null 2>&1; then
+      if [ -n "${JOBS:-}" ]; then pigz -dc -p "$JOBS" -- "$1"; else pigz -dc -- "$1"; fi
+    else
+      gzip -cd -- "$1"
+    fi
+  else
+    cat -- "$1"
+  fi
+}
+
+export LC_ALL=C
+
+# 1) 解压 + 预过滤
+{
+  for f in "$@"; do
+    decomp "$f"
+  done
+} | {
+  if command -v rg >/dev/null 2>&1; then
+    rg -i -F "$TABLE" | rg -i -F " where "
+  else
+    grep -i -F "$TABLE" | grep -i -F " where "
+  fi
+} \
+| tr 'A-Z' 'a-z' \
+| tr -d '\r`"' \
+| sed -E 's/[[:space:]]+/ /g' \
+# 3) awk 解析 where 条件并计数
+| "$AWK_BIN" -v target_table="$TABLE_LC" '
+function base_name(s,  a,n){ n=split(s,a,"."); return a[n] }
+function add_alias(name){ if (name!="") alias[name]=1 }
+function collect_aliases(sql,  pos,re,m,tbl,bn,als){
+  delete alias
+  re="(from|join|update|into|delete[[:space:]]+from)[[:space:]]+([a-z0-9_.]+)([[:space:]]+(as[[:space:]]+)?([a-z0-9_]+))?"
+  pos=1
+  while (match(substr(sql,pos), re, m)) {
+    tbl=m[2]; als=m[5]; bn=base_name(tbl)
+    if (bn==target_table){ add_alias(bn); add_alias(tbl); add_alias(als) }
+    pos += RSTART + RLENGTH - 1
+  }
+}
+function next_where(sql, start,  rest,i1,i2,i3,i4,i5,i6,i7,i8,min){
+  rest = substr(sql, start)
+  i1 = match(rest, / group[[:space:]]+by /)
+  i2 = match(rest, / order[[:space:]]+by /)
+  i3 = match(rest, / limit /)
+  i4 = match(rest, / having /)
+  i5 = match(rest, / union /)
+  i6 = match(rest, / intersect /)
+  i7 = match(rest, / except /)
+  i8 = match(rest, /[);]/)
+  min=0
+  if (i1>0 && (!min || i1<min)) min=i1
+  if (i2>0 && (!min || i2<min)) min=i2
+  if (i3>0 && (!min || i3<min)) min=i3
+  if (i4>0 && (!min || i4<min)) min=i4
+  if (i5>0 && (!min || i5<min)) min=i5
+  if (i6>0 && (!min || i6<min)) min=i6
+  if (i7>0 && (!min || i7<min)) min=i7
+  if (i8>0 && (!min || i8<min)) min=i8
+  return (min? substr(rest,1,min-1) : rest)
+}
+function read_value(s){
+  gsub(/^[[:space:]]+/,"",s)
+  if (s ~ /^\(/){
+    if (s ~ /^\([[:space:]]*select[[:space:]]/) return "(subselect)"
+    else return "(...)"
+  } else if (s ~ /^\047/) { return "?" }
+  else if (s ~ /^[0-9.]+([eE][-+]?[0-9]+)?/) { return "?" }
+  else if (s ~ /^[a-z0-9_.$]+/) { return "?" }
+  return "?"
+}
+function extract_conditions(wtxt,  pos,re,m,qual,col,op,rest,qbn,cond){
+  pos=1
+  re="([a-z0-9_.$]+)[.]{1}([a-z0-9_]+)[[:space:]]*(=|<>|!=|<=|>=|<|>|not[[:space:]]+like|like|not[[:space:]]+in|in|between|is[[:space:]]+not[[:space:]]+null|is[[:space:]]+null)"
+  while (match(substr(wtxt,pos), re, m)) {
+    qual=m[1]; col=m[2]; op=m[3]; qbn=base_name(qual)
+    if ((qual in alias) || (qbn in alias)) {
+      rest = substr(wtxt, pos + RSTART + RLENGTH)
+      gsub(/^[[:space:]]+/, "", rest)
+      if (op ~ /^is[[:space:]]+null$/)        cond = qual "." col " is null"
+      else if (op ~ /^is[[:space:]]+not[[:space:]]+null$/) cond = qual "." col " is not null"
+      else if (op ~ /^not[[:space:]]+like$/ || op=="like") cond = qual "." col " " op " ?"
+      else if (op ~ /^not[[:space:]]+in$/ || op=="in") {
+        if (rest ~ /^\([[:space:]]*select[[:space:]]/) cond = qual "." col " " op " (subselect)"
+        else cond = qual "." col " " op " (list)"
+      } else if (op=="between")               cond = qual "." col " between ? and ?"
+      else                                    cond = qual "." col " " op " ?"
+      cnt[cond]++
+    }
+    pos += RSTART + RLENGTH
+  }
+}
+{
+  s=$0
+  collect_aliases(s)
+  start=1
+  while (match(substr(s,start), / where[[:space:]]+/, w)) {
+    wtxt = next_where(s, start + RSTART + RLENGTH)
+    extract_conditions(wtxt)
+    start += RSTART + RLENGTH
+  }
+}
+END{
+  for (k in cnt) printf "%d\t%s\n", cnt[k], k
+}
+' \
+| sort -S 50% -t$'\t' -k1,1nr -k2,2 \
+| "$AWK_BIN" -v out="$OUT" -v tbl="$TABLE_LC" -F'\t' '
+BEGIN{ print "table,condition,count" > out }
+{
+  gsub(/"/, "\"\"", $2)
+  printf "%s,\"%s\",%d\n", tbl, $2, $1 >> out
+}
+END{
+  print "结果已写入 " out > "/dev/stderr"
+}
+'
+
+echo "OK：统计完成 -> $OUT"
