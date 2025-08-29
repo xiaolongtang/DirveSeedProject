@@ -1,0 +1,249 @@
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import java.util.zip.GZIPInputStream;
+
+/**
+ * LogAnalyzer
+ *
+ * 用途：
+ *  1) 统计指定表名相关的调用：按 Caller（如 com.xxx.Class#method:line）聚合，输出 count / avg_ms。
+ *  2) 提取指定表名相关 SQL 的 WHERE 子句，逐条输出。
+ *
+ * 输入：一个或多个文件/目录路径，支持 .log 与 .log.gz；目录将递归扫描。
+ * 过滤：仅处理包含 [SQL: ...]，且 SQL 中包含给定表名（不区分大小写，按词边界近似匹配）。
+ *
+ * 示例：
+ *   javac LogAnalyzer.java
+ *   java LogAnalyzer --mode stats --table udf_condition --out stats.csv ./logs
+ *   java LogAnalyzer --mode where --table udf_condition --out where.csv ./logs
+ */
+public class LogAnalyzer {
+    enum Mode { STATS, WHERE }
+
+    private static final Pattern TIME_P = Pattern.compile("\\[Time:\\s*(\\d+)\\s*ms\\]");
+    private static final Pattern CALLER_P = Pattern.compile("\\[Caller:\\s*([^\\]]+)\\]");
+    private static final Pattern SQL_P = Pattern.compile("\\[SQL:\\s*(.+?)\\]\\s*$", Pattern.CASE_INSENSITIVE);
+
+    // WHERE 子句提取：where 到下一个关键子句/结尾，DOTALL 允许换行
+    private static final Pattern WHERE_P = Pattern.compile(
+            "(?is)\\bwhere\\b(.*?)(?=\\b(group\\s+by|order\\s+by|having|limit|offset|fetch|for\\s+update)\\b|$)"
+    );
+
+    private static class Args {
+        Mode mode;
+        String table;
+        Path out;
+        int threads = Math.max(1, Runtime.getRuntime().availableProcessors());
+        List<Path> inputs = new ArrayList<>();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Args a = parseArgs(args);
+        if (a == null) {
+            usage();
+            System.exit(1);
+        }
+
+        List<Path> files = collectFiles(a.inputs);
+        if (files.isEmpty()) {
+            System.err.println("未找到可处理的 .log / .log.gz 文件。");
+            System.exit(2);
+        }
+
+        System.out.printf("将处理 %,d 个文件，线程数=%d\n", files.size(), a.threads);
+
+        switch (a.mode) {
+            case STATS -> runStats(files, a);
+            case WHERE -> runWhere(files, a);
+        }
+    }
+
+    private static void runStats(List<Path> files, Args a) throws Exception {
+        // 线程安全累加器
+        ConcurrentHashMap<String, LongAdder> countMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, LongAdder> sumMap = new ConcurrentHashMap<>();
+
+        processFiles(files, a.threads, a.table, (caller, timeMs, sql) -> {
+            countMap.computeIfAbsent(caller, k -> new LongAdder()).increment();
+            sumMap.computeIfAbsent(caller, k -> new LongAdder()).add(timeMs);
+        });
+
+        // 输出 CSV：caller,count,avg_ms
+        try (BufferedWriter w = Files.newBufferedWriter(a.out, StandardCharsets.UTF_8)) {
+            w.write("caller,count,avg_ms\n");
+            for (String caller : countMap.keySet()) {
+                long c = countMap.get(caller).sum();
+                long s = sumMap.getOrDefault(caller, new LongAdder()).sum();
+                double avg = c == 0 ? 0.0 : (double) s / c;
+                w.write(csv(caller) + "," + c + "," + String.format(Locale.ROOT, "%.3f", avg) + "\n");
+            }
+        }
+        System.out.println("统计完成 => " + a.out.toAbsolutePath());
+    }
+
+    private static void runWhere(List<Path> files, Args a) throws Exception {
+        // 收集 (caller, whereClause)
+        ConcurrentLinkedQueue<String[]> rows = new ConcurrentLinkedQueue<>();
+
+        processFiles(files, a.threads, a.table, (caller, timeMs, sql) -> {
+            String where = extractWhere(sql);
+            if (where != null && !where.isBlank()) {
+                where = normalizeSpace(where);
+                rows.add(new String[]{caller, where});
+            }
+        });
+
+        try (BufferedWriter w = Files.newBufferedWriter(a.out, StandardCharsets.UTF_8)) {
+            w.write("caller,where_clause\n");
+            for (String[] r : rows) {
+                w.write(csv(r[0]) + "," + csv(r[1]) + "\n");
+            }
+        }
+        System.out.println("WHERE 提取完成 => " + a.out.toAbsolutePath());
+    }
+
+    // 核心读取与过滤逻辑：逐行扫描，匹配 Time/Caller/SQL，按表名过滤
+    private static void processFiles(List<Path> files, int threads, String tableName,
+                                     TriConsumer<String, Long, String> handler) throws Exception {
+        String tableRegex = "(?i)\\b" + Pattern.quote(tableName) + "\\b"; // 词边界近似
+        Pattern tableP = Pattern.compile(tableRegex);
+
+        ExecutorService pool = Executors.newFixedThreadPool(threads);
+        try {
+            List<Future<?>> futures = new ArrayList<>();
+            for (Path f : files) {
+                futures.add(pool.submit(() -> {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(openMaybeGzip(f), StandardCharsets.UTF_8), 1 << 20)) {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            if (!line.contains("[SQL:")) continue; // 快速跳过
+
+                            Matcher sqlM = SQL_P.matcher(line);
+                            if (!sqlM.find()) continue;
+                            String sql = sqlM.group(1);
+                            if (sql == null) continue;
+
+                            if (!tableP.matcher(sql).find()) continue; // 按表名过滤
+
+                            String caller = matchGroup(line, CALLER_P, 1);
+                            if (caller == null) caller = "<unknown>";
+
+                            Long timeMs = null;
+                            Matcher t = TIME_P.matcher(line);
+                            if (t.find()) {
+                                try { timeMs = Long.parseLong(t.group(1)); } catch (NumberFormatException ignored) {}
+                            }
+                            if (timeMs == null) timeMs = 0L; // 若缺失则记 0
+
+                            handler.accept(caller, timeMs, sql);
+                        }
+                    } catch (IOException e) {
+                        System.err.println("读取失败: " + f + " -> " + e.getMessage());
+                    }
+                }));
+            }
+            for (Future<?> fu : futures) fu.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    private static InputStream openMaybeGzip(Path p) throws IOException {
+        InputStream in = Files.newInputStream(p);
+        if (p.toString().toLowerCase(Locale.ROOT).endsWith(".gz")) {
+            return new GZIPInputStream(in, 1 << 16);
+        } else {
+            return in;
+        }
+    }
+
+    private static String extractWhere(String sql) {
+        Matcher m = WHERE_P.matcher(sql);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    private static String normalizeSpace(String s) {
+        return s.replaceAll("\\s+", " ").trim();
+    }
+
+    private static String matchGroup(String text, Pattern p, int idx) {
+        Matcher m = p.matcher(text);
+        return m.find() ? m.group(idx) : null;
+    }
+
+    private static String csv(String v) {
+        if (v == null) return "";
+        String s = v.replace("\r", " ").replace("\n", " ");
+        if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
+            s = s.replace("\"", "\"\"");
+            return "\"" + s + "\"";
+        }
+        return s;
+    }
+
+    private static List<Path> collectFiles(List<Path> ins) throws IOException {
+        List<Path> out = new ArrayList<>();
+        for (Path in : ins) {
+            if (Files.isDirectory(in)) {
+                try (Stream<Path> st = Files.walk(in)) {
+                    st.filter(p -> !Files.isDirectory(p))
+                      .filter(LogAnalyzer::isLogLike)
+                      .forEach(out::add);
+                }
+            } else if (Files.isRegularFile(in) && isLogLike(in)) {
+                out.add(in);
+            }
+        }
+        return out;
+    }
+
+    private static boolean isLogLike(Path p) {
+        String n = p.getFileName().toString().toLowerCase(Locale.ROOT);
+        return n.endsWith(".log") || n.endsWith(".log.gz") || n.endsWith(".gz");
+    }
+
+    private static Args parseArgs(String[] args) {
+        Args a = new Args();
+        for (int i = 0; i < args.length; i++) {
+            String s = args[i];
+            switch (s) {
+                case "--mode" -> {
+                    if (i + 1 >= args.length) return null;
+                    String m = args[++i].toLowerCase(Locale.ROOT);
+                    a.mode = switch (m) {
+                        case "stats" -> Mode.STATS;
+                        case "where" -> Mode.WHERE;
+                        default -> null;
+                    };
+                }
+                case "--table" -> { if (i + 1 >= args.length) return null; a.table = args[++i]; }
+                case "--out" -> { if (i + 1 >= args.length) return null; a.out = Paths.get(args[++i]); }
+                case "--threads" -> { if (i + 1 >= args.length) return null; a.threads = Integer.parseInt(args[++i]); }
+                default -> a.inputs.add(Paths.get(s));
+            }
+        }
+        if (a.mode == null || a.table == null || a.table.isBlank() || a.out == null || a.inputs.isEmpty()) return null;
+        return a;
+    }
+
+    private static void usage() {
+        System.out.println("用法：java LogAnalyzer --mode <stats|where> --table <表名> --out <输出csv> [--threads N] <文件或目录...>\n" +
+                "示例：\n" +
+                "  java LogAnalyzer --mode stats --table udf_condition --out stats.csv ./logs\n" +
+                "  java LogAnalyzer --mode where --table udf_condition --out where.csv ./logs\n");
+    }
+
+    @FunctionalInterface
+    interface TriConsumer<A, B, C> { void accept(A a, B b, C c); }
+}
