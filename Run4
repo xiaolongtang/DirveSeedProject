@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+# 统计指定表在 SQL 日志中的 WHERE 条件（含子查询），输出 CSV
+# 用法：
+#   ./sql_where_stats.sh -t user_order [-o out.csv] logs/*.log.gz more/*.log
+
+set -euo pipefail
+
+usage() {
+  echo "用法: $0 -t <table_name> [-o out.csv] file1.log[.gz] [file2.log[.gz] ...]" >&2
+  exit 1
+}
+
+OUT=""
+TABLE=""
+while getopts ":t:o:" opt; do
+  case "$opt" in
+    t) TABLE="$OPTARG" ;;
+    o) OUT="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND-1))
+[ -z "${TABLE:-}" ] && usage
+[ $# -lt 1 ] && usage
+TABLE_LC="$(echo "$TABLE" | tr 'A-Z' 'a-z')"
+OUT="${OUT:-where_stats_${TABLE_LC}.csv}"
+
+# 读取所有日志（支持 .gz）并送入 awk
+(
+  for f in "$@"; do
+    case "$f" in
+      *.gz) gzip -cd -- "$f" ;;
+      *)    cat -- "$f" ;;
+    esac
+  done
+) | awk -v target_table="$TABLE_LC" -v OUTFILE="$OUT" '
+BEGIN{ IGNORECASE=1 }
+
+# ---- 工具函数 ----
+function norm_sql(s, t){
+  t=s
+  gsub(/\r/," ",t); gsub(/\t/," ",t)
+  gsub(/`|"/,"",t)                 # 去掉反引号和双引号
+  gsub(/[[:space:]]+/, " ", t)     # 压缩空白
+  return tolower(t)
+}
+function base_name(s, a,n){ n=split(s,a,"."); return a[n] }
+function add_alias(name){ if (name!="") alias[name]=1 }
+
+# 收集该 SQL 中目标表的别名（from/join/update/into/delete from）
+function collect_aliases(sql, pos,re,m,tbl,bn,als){
+  delete alias
+  re="(from|join|update|into|delete[[:space:]]+from)[[:space:]]+([a-z0-9_.]+)([[:space:]]+(as[[:space:]]+)?([a-z0-9_]+))?"
+  pos=1
+  while (match(substr(sql,pos), re, m)) {
+    tbl=m[2]; als=m[5]; bn=base_name(tbl)
+    if (bn==target_table) { add_alias(bn); add_alias(tbl); add_alias(als) }
+    pos += RSTART + RLENGTH - 1
+  }
+}
+
+# 从某个 where 开始截到下一个边界（group by/order by/limit/having/union/intersect/except/; )）
+function next_where(sql, start, rest,idx1,idx2,idx3,idx4,idx5,idx6,idx7,idx8, min){
+  rest = substr(sql, start)
+  idx1 = match(rest, / group[[:space:]]+by /)
+  idx2 = match(rest, / order[[:space:]]+by /)
+  idx3 = match(rest, / limit /)
+  idx4 = match(rest, / having /)
+  idx5 = match(rest, / union /)
+  idx6 = match(rest, / intersect /)
+  idx7 = match(rest, / except /)
+  idx8 = match(rest, /[);]/)
+  min=0
+  if (idx1>0 && (min==0 || idx1<min)) min=idx1
+  if (idx2>0 && (min==0 || idx2<min)) min=idx2
+  if (idx3>0 && (min==0 || idx3<min)) min=idx3
+  if (idx4>0 && (min==0 || idx4<min)) min=idx4
+  if (idx5>0 && (min==0 || idx5<min)) min=idx5
+  if (idx6>0 && (min==0 || idx6<min)) min=idx6
+  if (idx7>0 && (min==0 || idx7<min)) min=idx7
+  if (idx8>0 && (min==0 || idx8<min)) min=idx8
+  if (min==0) return rest
+  return substr(rest, 1, min-1)
+}
+
+function trim(s){ sub(/^[[:space:]]+/,"",s); sub(/[[:space:]]+$/,"",s); return s }
+
+# 读右值，统一归一化成 ? 或 (list)/(subselect)/(...)
+# 注意：为了避免 shell 引号冲突，这里匹配单引号用 \047（即 ASCII 39）
+function read_value(s, val){
+  s = trim(s)
+  if (s ~ /^\(/) {
+    if (s ~ /^\([[:space:]]*select[[:space:]]/) val="(subselect)"
+    else val="(...)"
+  } else if (s ~ /^\047/){          # 单引号开头的字符串
+    val="?"
+  } else if (s ~ /^[0-9.]+([eE][-+]?[0-9]+)?/){
+    val="?"
+  } else if (s ~ /^[a-z0-9_.$]+/){
+    # 可能是列/函数，统一成 ?
+    val="?"
+  } else {
+    val="?"
+  }
+  return val
+}
+
+# 从 WHERE 文本里抽取目标表（含别名）的条件
+function extract_conditions(wtxt, pos,re,m,qual,col,op,rest,val1,cond,qbn,key){
+  pos=1
+  re="([a-z0-9_.$]+)[.]{1}([a-z0-9_]+)[[:space:]]*(=|<>|!=|<=|>=|<|>|not[[:space:]]+like|like|not[[:space:]]+in|in|between|is[[:space:]]+not[[:space:]]+null|is[[:space:]]+null)"
+  while (match(substr(wtxt,pos), re, m)) {
+    qual=m[1]; col=m[2]; op=m[3]; qbn=base_name(qual)
+    if ((qual in alias) || (qbn in alias)) {
+      rest = substr(wtxt, pos + RSTART + RLENGTH)
+      gsub(/^[[:space:]]+/, "", rest)
+      if (op ~ /^is[[:space:]]+null$/) {
+        cond = qual "." col " is null"
+      } else if (op ~ /^is[[:space:]]+not[[:space:]]+null$/) {
+        cond = qual "." col " is not null"
+      } else if (op ~ /^not[[:space:]]+like$/ || op == "like") {
+        val1 = read_value(rest); cond = qual "." col " " op " ?"
+      } else if (op ~ /^not[[:space:]]+in$/ || op == "in") {
+        if (rest ~ /^\([[:space:]]*select[[:space:]]/) cond = qual "." col " " op " (subselect)"
+        else cond = qual "." col " " op " (list)"
+      } else if (op == "between") {
+        cond = qual "." col " between ? and ?"
+      } else {
+        val1 = read_value(rest); cond = qual "." col " " op " ?"
+      }
+      key = cond; cnt[key]++
+    }
+    pos += RSTART + RLENGTH
+  }
+}
+
+# ---- 主流程 ----
+{
+  s = norm_sql($0)
+  collect_aliases(s)
+  start=1
+  while (match(substr(s,start), / where[[:space:]]+/, w)) {
+    wtxt = next_where(s, start + RSTART + RLENGTH)
+    extract_conditions(wtxt)
+    start += RSTART + RLENGTH
+  }
+}
+
+END{
+  # 中间结果：count<TAB>condition
+  for (k in cnt) printf "%d\t%s\n", cnt[k], k
+}
+' | sort -t$'\t' -k1,1nr -k2,2 \
+  | awk -v out="$OUT" -v tbl="$TABLE_LC" -F'\t' '
+      BEGIN{ print "table,condition,count" > out }
+      {
+        gsub(/"/, "\"\"", $2)
+        printf "%s,\"%s\",%d\n", tbl, $2, $1 >> out
+      }
+      END{ print "结果已写入 " out > "/dev/stderr" }
+    '
+
+echo "OK：统计完成 -> $OUT"
