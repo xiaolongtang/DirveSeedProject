@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+# sql_where_stats.sh
+# 统计指定表在 SQL 日志中的 WHERE 条件（包含子查询），输出 CSV
+
+set -euo pipefail
+
+usage() {
+  echo "用法: $0 -t <table_name> [-o out.csv] file1.log[.gz] [file2.log[.gz] ...]" >&2
+  exit 1
+}
+
+OUT=""
+TABLE=""
+while getopts ":t:o:" opt; do
+  case "$opt" in
+    t) TABLE="$OPTARG" ;;
+    o) OUT="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND-1))
+[ -z "${TABLE:-}" ] && usage
+[ $# -lt 1 ] && usage
+TABLE_LC="$(echo "$TABLE" | tr 'A-Z' 'a-z')"
+OUT="${OUT:-where_stats_${TABLE_LC}.csv}"
+
+# 读取所有日志（支持 .gz）
+(
+  for f in "$@"; do
+    case "$f" in
+      *.gz) zcat -- "$f" ;;
+      *)    cat  -- "$f" ;;
+    esac
+  done
+) | awk -v target_table="$TABLE_LC" -v out="$OUT" '
+BEGIN{
+  IGNORECASE=1
+}
+
+# ---------- 工具函数 ----------
+function tolower_all(s){ return tolower(s) }
+
+function norm_sql(s,   t){
+  t = s
+  gsub(/\r/," ",t); gsub(/\t/," ",t)
+  gsub(/`|"/,"",t)           # 去引号（标识符）
+  # 把多空格压成单空格
+  gsub(/[[:space:]]+/, " ", t)
+  return tolower_all(t)
+}
+
+# 取对象最后一个点分段（schema.table -> table）
+function base_name(s,   a,n){ n=split(s,a,"."); return a[n] }
+
+# 往 alias 集合里加入一个名字
+function add_alias(name,   n){
+  if (name=="") return
+  alias[name]=1
+}
+
+# 解析当前 SQL 中属于目标表的别名（from/join/update/into/delete from）
+function collect_aliases(sql,   pos,re,m,a,tbl,bn,als,kw){
+  # 清空
+  delete alias
+  # 遍历所有可能带表的关键字
+  re="(from|join|update|into|delete[[:space:]]+from)[[:space:]]+([a-z0-9_.]+)([[:space:]]+(as[[:space:]]+)?([a-z0-9_]+))?"
+  pos=1
+  while (match(substr(sql,pos), re, m)) {
+    tbl=m[2]; als=m[5]
+    bn=base_name(tbl)
+    if (bn==target_table) {
+      add_alias(bn); add_alias(tbl); add_alias(als)
+    }
+    pos += RSTART + RLENGTH - 1
+  }
+}
+
+# 找出一个 WHERE 子句文本（从某个 where 开始到下一个边界）
+function next_where(sql, start,    rest,idx1,idx2,idx3,idx4,idx5,idx6,idx7,idx8,idx,min){
+  rest = substr(sql, start)
+  # 搜索多个边界中的最近一个
+  idx1 = match(rest, / group[[:space:]]+by /)
+  idx2 = match(rest, / order[[:space:]]+by /)
+  idx3 = match(rest, / limit /)
+  idx4 = match(rest, / having /)
+  idx5 = match(rest, / union /)
+  idx6 = match(rest, / intersect /)
+  idx7 = match(rest, / except /)
+  idx8 = match(rest, /[);]/)
+
+  # 取最小的非 0 值
+  min=0
+  for (i in idxarr) delete idxarr[i]
+  idxarr[1]=idx1; idxarr[2]=idx2; idxarr[3]=idx3; idxarr[4]=idx4
+  idxarr[5]=idx5; idxarr[6]=idx6; idxarr[7]=idx7; idxarr[8]=idx8
+  for (i=1;i<=8;i++) if (idxarr[i]>0 && (min==0 || idxarr[i]<min)) min=idxarr[i]
+
+  if (min==0) return rest
+  return substr(rest, 1, min-1)
+}
+
+# 去掉两端空白
+function trim(s){ sub(/^[[:space:]]+/,"",s); sub(/[[:space:]]+$/,"",s); return s }
+
+# 读下一个“值”片段（常量/括号/子查询/标识符），返回规范化值和消耗长度
+function read_value(s,   c,consumed,val,tmp){
+  s = trim(s)
+  if (s ~ /^\(/) {
+    # 括号开头，看看是否子查询
+    if (s ~ /^\([[:space:]]*select[[:space:]]/){
+      val="(subselect)"; consumed = length(s)                               # 不严格计长，下面统一截断
+    } else {
+      val="(...)"; consumed = length(s)
+    }
+  } else if (s ~ /^\'/){
+    val="?"; consumed = length(s)  # 字符串常量 -> ?
+  } else if (s ~ /^[0-9.]+([eE][-+]?[0-9]+)?/){
+    val="?"; consumed = length(s)  # 数值 -> ?
+  } else if (s ~ /^[a-z0-9_.$]+/){
+    # 可能是列名/函数/占位符
+    match(s,/^[a-z0-9_.$]+/,tmp)
+    val = substr(s,1,RLENGTH)
+    # 函数调用或日期构造，统一成 ?
+    if (match(substr(s,RLENGTH+1),/^[[:space:]]*\(/)) val="?"
+    consumed = length(s)
+  } else {
+    val="?"
+    consumed = length(s)
+  }
+  return val
+}
+
+# 从 WHERE 文本里抽取属于目标表别名的条件
+function extract_conditions(wtxt,   pos,re,m,qual,col,op,rest,val1,val2,cond,key){
+  pos=1
+  # 匹配： qualifier.col + 操作符
+  re="([a-z0-9_.$]+)[.]{1}([a-z0-9_]+)[[:space:]]*(=|<>|!=|<=|>=|<|>|not[[:space:]]+like|like|not[[:space:]]+in|in|between|is[[:space:]]+not[[:space:]]+null|is[[:space:]]+null)"
+  while (match(substr(wtxt,pos), re, m)) {
+    qual=m[1]; col=m[2]; op=m[3]
+    qbn=base_name(qual)
+    # 只有当左侧限定符属于目标表（表名或别名）时才统计
+    if (qual in alias || qbn in alias) {
+      rest = substr(wtxt, pos + RSTART + RLENGTH)
+      gsub(/^[[:space:]]+/, "", rest)
+
+      # 归一化不同操作
+      if (op ~ /^is[[:space:]]+null$/) {
+        cond = qual "." col " is null"
+      } else if (op ~ /^is[[:space:]]+not[[:space:]]+null$/) {
+        cond = qual "." col " is not null"
+      } else if (op ~ /^not[[:space:]]+like$/ || op == "like") {
+        val1 = read_value(rest)
+        # 常量/表达式一律 ?
+        cond = qual "." col " " op " ?"
+      } else if (op ~ /^not[[:space:]]+in$/ || op == "in") {
+        if (rest ~ /^\([[:space:]]*select[[:space:]]/) {
+          cond = qual "." col " " op " (subselect)"
+        } else {
+          cond = qual "." col " " op " (list)"
+        }
+      } else if (op == "between") {
+        # between ? and ?
+        cond = qual "." col " between ? and ?"
+      } else {
+        # 一般比较运算符
+        val1 = read_value(rest)
+        # 若右边是列引用，也归一化为列名（含限定符）
+        cond = qual "." col " " op " ?"
+      }
+
+      key = cond
+      cnt[key]++
+    }
+    pos += RSTART + RLENGTH
+  }
+}
+
+# ---------- 主处理 ----------
+{
+  s = norm_sql($0)
+
+  # 为本条 SQL 收集属于目标表的别名集合
+  collect_aliases(s)
+
+  # 遍历所有 where
+  start=1
+  while (match(substr(s,start), / where[[:space:]]+/, w)) {
+    wtxt = next_where(s, start + RSTART + RLENGTH)
+    extract_conditions(wtxt)
+    start += RSTART + RLENGTH
+  }
+}
+
+END{
+  # 输出 CSV（count 降序，条件字典序）
+  # 先把结果打印成中间格式：count,condition
+  for (k in cnt) {
+    printf "%d\t%s\n", cnt[k], k
+  }
+}
+' \
+| sort -t$'\t' -k1,1nr -k2,2 \
+| awk -v out="$OUT" -v tbl="$TABLE_LC" -F'\t' '
+BEGIN{
+  print "table,condition,count" > out
+}
+{
+  # k 是整条条件（里面可能有逗号），用双引号包裹
+  gsub(/"/, "\"\"", $2)
+  printf "%s,\"%s\",%d\n", tbl, $2, $1 >> out
+}
+END{
+  print "结果已写入 " out > "/dev/stderr"
+}
+'
+
+echo "OK：统计完成 -> $OUT"
