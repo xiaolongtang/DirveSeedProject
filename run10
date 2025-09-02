@@ -1,0 +1,18 @@
+Sub Highlight_Table_Caller()
+    Dim ws As Worksheet: Set ws = ActiveSheet
+    Dim lastRow As Long, lastCol As Long, r As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+
+    Application.ScreenUpdating = False
+    For r = 1 To lastRow
+        Dim txt As String: txt = LCase$(Trim$(CStr(ws.Cells(r, 1).Value)))
+        If (InStr(1, txt, "table", vbTextCompare) > 0) Or (txt = "caller") Then
+            With ws.Range(ws.Cells(r, 1), ws.Cells(r, lastCol))
+                .Font.Bold = True
+                .Interior.Color = RGB(198, 239, 206) '淡绿色
+            End With
+        End If
+    Next r
+    Application.ScreenUpdating = True
+End Sub
