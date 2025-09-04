@@ -1,0 +1,67 @@
+-- 建表：使用 task_name 作为主键；is_maintain 用 NUMBER(1) 存 0/1
+CREATE TABLE TASK_CONFIG (
+  TASK_NAME   VARCHAR2(128) NOT NULL,
+  IS_MAINTAIN NUMBER(1)     DEFAULT 0 NOT NULL,
+  CONSTRAINT PK_TASK_CONFIG PRIMARY KEY (TASK_NAME),
+  CONSTRAINT CHK_TASK_CONFIG_BOOL CHECK (IS_MAINTAIN IN (0, 1))
+);
+
+COMMENT ON TABLE TASK_CONFIG IS '任务配置：用 task_name 作为主键';
+COMMENT ON COLUMN TASK_CONFIG.TASK_NAME IS '任务名称（主键，唯一）';
+COMMENT ON COLUMN TASK_CONFIG.IS_MAINTAIN IS '是否维护期：0=false，1=true';
+
+-- 可选：一些示例数据
+INSERT INTO TASK_CONFIG (TASK_NAME, IS_MAINTAIN) VALUES ('order_sync', 0);
+INSERT INTO TASK_CONFIG (TASK_NAME, IS_MAINTAIN) VALUES ('report_gen', 1);
+COMMIT;
+
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import java.util.Objects;
+
+@Entity
+@Table(name = "TASK_CONFIG")
+public class TaskConfig {
+
+    @Id
+    @Column(name = "TASK_NAME", length = 128, nullable = false)
+    @NotBlank
+    private String taskName;
+
+    @Column(name = "IS_MAINTAIN", nullable = false)
+    @Convert(converter = BooleanToNumberConverter.class)
+    private Boolean isMaintain = false;
+
+    protected TaskConfig() {} // JPA 要求无参构造
+
+    public TaskConfig(String taskName, Boolean isMaintain) {
+        this.taskName = taskName;
+        this.isMaintain = isMaintain != null ? isMaintain : false;
+    }
+
+    public String getTaskName() { return taskName; }
+    public void setTaskName(String taskName) { this.taskName = taskName; }
+
+    public Boolean getIsMaintain() { return isMaintain; }
+    public void setIsMaintain(Boolean maintain) { isMaintain = maintain; }
+
+    // equals/hashCode 基于自然主键 taskName
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TaskConfig)) return false;
+        TaskConfig that = (TaskConfig) o;
+        return Objects.equals(taskName, that.taskName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskName);
+    }
+
+    @Override
+    public String toString() {
+        return "TaskConfig{taskName='" + taskName + "', isMaintain=" + isMaintain + '}';
+    }
+}
