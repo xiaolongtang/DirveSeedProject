@@ -1,0 +1,145 @@
+import java.util.Locale;
+
+public final class HeaderUtils {
+    private HeaderUtils() {}
+
+    /**
+     * 将表头转换为驼峰属性名：大小写不敏感、按非字母数字分割、首段小写，其余段首字母大写。
+     * 例："USER_NAME" / "user name" / "Email-Address" -> "userName" / "emailAddress"
+     */
+    public static String toCamelProperty(String header) {
+        if (header == null) return null;
+        // 去掉两端空白，并将连续非字母数字视为分隔符
+        String[] parts = header.trim()
+                .replaceAll("[^A-Za-z0-9]+", " ")
+                .toLowerCase(Locale.ROOT)
+                .split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            String p = parts[i];
+            if (p.isEmpty()) continue;
+            if (i == 0) sb.append(p);
+            else sb.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1));
+        }
+        return sb.toString();
+    }
+}
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
+import org.apache.poi.ss.usermodel.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+public class ExcelCsvReader {
+
+    private final ObjectMapper objectMapper;
+
+    public ExcelCsvReader() {
+        this.objectMapper = new ObjectMapper()
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    }
+
+    public <T> List<T> read(MultipartFile file, Class<T> targetType) throws IOException {
+        String filename = Optional.ofNullable(file.getOriginalFilename()).orElse("").toLowerCase(Locale.ROOT);
+        if (filename.endsWith(".csv")) {
+            return readCsv(file.getInputStream(), targetType);
+        } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+            return readExcel(file.getInputStream(), targetType);
+        } else {
+            throw new IllegalArgumentException("仅支持 CSV / XLSX / XLS 文件");
+        }
+    }
+
+    private <T> List<T> readCsv(InputStream in, Class<T> targetType) throws IOException {
+        try (ICsvMapReader mapReader = new CsvMapReader(
+                new InputStreamReader(in, StandardCharsets.UTF_8),
+                CsvPreference.STANDARD_PREFERENCE)) {
+
+            final String[] originalHeader = mapReader.getHeader(true);
+            if (originalHeader == null) return Collections.emptyList();
+
+            final String[] headers = Arrays.stream(originalHeader)
+                    .map(HeaderUtils::toCamelProperty)
+                    .toArray(String[]::new);
+
+            List<T> result = new ArrayList<>();
+            Map<String, Object> rowMap;
+            while ((rowMap = mapReader.read(headers)) != null) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (String key : headers) {
+                    Object v = rowMap.get(key);
+                    row.put(key, normalizeValue(v == null ? null : String.valueOf(v)));
+                }
+                result.add(objectMapper.convertValue(row, targetType));
+            }
+            return result;
+        }
+    }
+
+    private <T> List<T> readExcel(InputStream in, Class<T> targetType) throws IOException {
+        try (Workbook wb = WorkbookFactory.create(in)) {
+            Sheet sheet = wb.getNumberOfSheets() > 0 ? wb.getSheetAt(0) : null;
+            if (sheet == null) return Collections.emptyList();
+            Iterator<Row> it = sheet.iterator();
+            if (!it.hasNext()) return Collections.emptyList();
+
+            Row headerRow = it.next();
+            int lastCol = headerRow.getLastCellNum();
+            List<String> headers = new ArrayList<>(lastCol);
+            DataFormatter fmt = new DataFormatter();
+            for (int c = 0; c < lastCol; c++) {
+                Cell hc = headerRow.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                String raw = hc == null ? "" : fmt.formatCellValue(hc);
+                headers.add(HeaderUtils.toCamelProperty(raw));
+            }
+
+            List<T> result = new ArrayList<>();
+            while (it.hasNext()) {
+                Row rowObj = it.next();
+                if (isRowEmpty(rowObj)) continue;
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (int c = 0; c < lastCol; c++) {
+                    Cell cell = rowObj.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    String value = cell == null ? null : fmt.formatCellValue(cell);
+                    row.put(headers.get(c), normalizeValue(value));
+                }
+                result.add(objectMapper.convertValue(row, targetType));
+            }
+            return result;
+        } catch (Exception e) {
+            if (e instanceof IOException) throw (IOException) e;
+            throw new IOException("读取 Excel 失败", e);
+        }
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            Cell cell = row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) return false;
+        }
+        return true;
+    }
+
+    private Object normalizeValue(String v) {
+        if (v == null) return null;
+        String s = v.trim();
+        if (s.isEmpty()) return null;
+        return s; // 交给 ObjectMapper 进行类型转换（如 Integer/Long/Boolean/LocalDate 等）
+    }
+}
+
