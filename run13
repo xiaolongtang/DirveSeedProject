@@ -1,0 +1,230 @@
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.time.ParseLocalDate;
+import org.supercsv.cellprocessor.time.ParseLocalDateTime;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+public class ExcelCsvReader {
+
+    private final ObjectMapper objectMapper;
+    private final boolean useCsvProcessors;
+    private final Map<String, DateTimeFormatter> localDateColumns;      // header -> pattern
+    private final Map<String, DateTimeFormatter> localDateTimeColumns;  // header -> pattern
+
+    // 默认构造：不用 processors（CSV 读成字符串），手动注册 JavaTime 支持
+    public ExcelCsvReader() {
+        this(defaultObjectMapper(), false, Collections.emptyMap(), Collections.emptyMap());
+    }
+
+    private ExcelCsvReader(ObjectMapper objectMapper,
+                           boolean useCsvProcessors,
+                           Map<String, DateTimeFormatter> localDateColumns,
+                           Map<String, DateTimeFormatter> localDateTimeColumns) {
+        this.objectMapper = objectMapper;
+        this.useCsvProcessors = useCsvProcessors;
+        this.localDateColumns = localDateColumns;
+        this.localDateTimeColumns = localDateTimeColumns;
+    }
+
+    private static ObjectMapper defaultObjectMapper() {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private ObjectMapper objectMapper;
+        private boolean useCsvProcessors = false;
+        private final Map<String, DateTimeFormatter> ldCols = new HashMap<>();
+        private final Map<String, DateTimeFormatter> ldtCols = new HashMap<>();
+
+        public Builder objectMapper(ObjectMapper om) { this.objectMapper = om; return this; }
+        public Builder useCsvProcessors(boolean v) { this.useCsvProcessors = v; return this; }
+        /** headerName 为驼峰（与 DTO 字段一致） */
+        public Builder localDateColumn(String headerName, String pattern) {
+            ldCols.put(headerName, DateTimeFormatter.ofPattern(pattern));
+            return this;
+        }
+        public Builder localDateTimeColumn(String headerName, String pattern) {
+            ldtCols.put(headerName, DateTimeFormatter.ofPattern(pattern));
+            return this;
+        }
+        public ExcelCsvReader build() {
+            return new ExcelCsvReader(
+                    objectMapper != null ? objectMapper : defaultObjectMapper(),
+                    useCsvProcessors,
+                    Collections.unmodifiableMap(new HashMap<>(ldCols)),
+                    Collections.unmodifiableMap(new HashMap<>(ldtCols))
+            );
+        }
+    }
+
+    public <T> List<T> read(MultipartFile file, Class<T> targetType) throws IOException {
+        String filename = Optional.ofNullable(file.getOriginalFilename()).orElse("").toLowerCase(Locale.ROOT);
+        if (filename.endsWith(".csv")) {
+            return readCsv(file.getInputStream(), targetType);
+        } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+            return readExcel(file.getInputStream(), targetType);
+        } else {
+            throw new IllegalArgumentException("仅支持 CSV / XLSX / XLS 文件");
+        }
+    }
+
+    private <T> List<T> readCsv(InputStream in, Class<T> targetType) throws IOException {
+        try (ICsvMapReader mapReader = new CsvMapReader(
+                new InputStreamReader(in, StandardCharsets.UTF_8),
+                CsvPreference.STANDARD_PREFERENCE)) {
+
+            final String[] originalHeader = mapReader.getHeader(true);
+            if (originalHeader == null) return Collections.emptyList();
+
+            final String[] headers = Arrays.stream(originalHeader)
+                    .map(HeaderUtils::toCamelProperty)
+                    .toArray(String[]::new);
+
+            List<T> result = new ArrayList<>();
+
+            if (useCsvProcessors) {
+                CellProcessor[] processors = buildCsvProcessors(headers);
+                Map<String, Object> rowMap;
+                while ((rowMap = mapReader.read(headers, processors)) != null) {
+                    result.add(objectMapper.convertValue(rowMap, targetType));
+                }
+            } else {
+                // 无 processors：全部先读成字符串，交给 ObjectMapper + @JsonFormat 解析
+                Map<String, String> rowMap;
+                while ((rowMap = mapReader.read(headers)) != null) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    for (String key : headers) {
+                        String v = rowMap.get(key);
+                        row.put(key, normalizeValue(v));
+                    }
+                    result.add(objectMapper.convertValue(row, targetType));
+                }
+            }
+            return result;
+        }
+    }
+
+    private CellProcessor[] buildCsvProcessors(String[] headers) {
+        CellProcessor[] ps = new CellProcessor[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            String h = headers[i];
+            if (localDateColumns.containsKey(h)) {
+                ps[i] = new Optional(new ParseLocalDate(localDateColumns.get(h)));
+            } else if (localDateTimeColumns.containsKey(h)) {
+                ps[i] = new Optional(new ParseLocalDateTime(localDateTimeColumns.get(h)));
+            } else {
+                ps[i] = new Optional(); // 原样读取
+            }
+        }
+        return ps;
+    }
+
+    private <T> List<T> readExcel(InputStream in, Class<T> targetType) throws IOException {
+        try (Workbook wb = WorkbookFactory.create(in)) {
+            Sheet sheet = wb.getNumberOfSheets() > 0 ? wb.getSheetAt(0) : null;
+            if (sheet == null) return Collections.emptyList();
+            Iterator<Row> it = sheet.iterator();
+            if (!it.hasNext()) return Collections.emptyList();
+
+            Row headerRow = it.next();
+            int lastCol = headerRow.getLastCellNum();
+            List<String> headers = new ArrayList<>(lastCol);
+            DataFormatter fmt = new DataFormatter();
+            for (int c = 0; c < lastCol; c++) {
+                Cell hc = headerRow.getCell(c, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                String raw = hc == null ? "" : fmt.formatCellValue(hc);
+                headers.add(HeaderUtils.toCamelProperty(raw));
+            }
+
+            List<T> result = new ArrayList<>();
+            while (it.hasNext()) {
+                Row rowObj = it.next();
+                if (isRowEmpty(rowObj)) continue;
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (int c = 0; c < lastCol; c++) {
+                    Cell cell = rowObj.getCell(c, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    String header = headers.get(c);
+                    if (cell != null && cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                        LocalDateTime ldt = cell.getLocalDateTimeCellValue();
+                        String dfs = cell.getCellStyle() != null ? cell.getCellStyle().getDataFormatString() : null;
+                        if (hasTimeTokens(dfs)) {
+                            row.put(header, ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        } else {
+                            row.put(header, ldt.toLocalDate().toString());
+                        }
+                    } else {
+                        String value = cell == null ? null : fmt.formatCellValue(cell);
+                        row.put(header, normalizeValue(value));
+                    }
+                }
+                result.add(objectMapper.convertValue(row, targetType));
+            }
+            return result;
+        } catch (Exception e) {
+            if (e instanceof IOException) throw (IOException) e;
+            throw new IOException("读取 Excel 失败", e);
+        }
+    }
+
+    private boolean hasTimeTokens(String fmt) {
+        if (fmt == null) return true; // 保守认为包含时间
+        String f = fmt.toLowerCase(Locale.ROOT);
+        // 简单判断：包含小时/秒或冒号基本可视为带时间
+        return f.contains("h") || f.contains(":") || f.contains("s");
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            Cell cell = row.getCell(c, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && cell.getCellType() != CellType.BLANK) return false;
+        }
+        return true;
+    }
+
+    private Object normalizeValue(String v) {
+        if (v == null) return null;
+        String s = v.trim();
+        if (s.isEmpty()) return null;
+        return s;
+    }
+}
+
+
+
+private final ExcelCsvReader reader = ExcelCsvReader.builder()
+            .useCsvProcessors(true) // CSV 走 processors，直接产出 JavaTime
+            .localDateColumn("birthday", "yyyy-MM-dd")
+            .localDateTimeColumn("createdAt", "yyyy-MM-dd HH:mm:ss")
+            .build();
